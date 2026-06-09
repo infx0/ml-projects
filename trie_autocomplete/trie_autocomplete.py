@@ -1,5 +1,6 @@
 END = "_end_"
 
+
 def expand_from(words, mid, prefix):
     """
     uses a starting index in the list of words provdided by the call from the binary search and expands around that index as appropriate until all words matching the prefix are found.
@@ -14,6 +15,7 @@ def expand_from(words, mid, prefix):
         results.append(words[j])
         j += 1
     return results
+
 
 def binary_search_autocomplete(words, prefix):
     """
@@ -34,6 +36,7 @@ def binary_search_autocomplete(words, prefix):
             right = mid - 1
     return results
 
+
 def insert_trie(trie, word):
     """
     adds to a trie data structure, mechanized with hierarchical dicts, based on the input word. Used for initializating trie structures in unit tests and benchmarks.
@@ -47,7 +50,8 @@ def insert_trie(trie, word):
         if first_char not in trie:
             trie[first_char] = {}
         trie[first_char] = insert_trie(trie[first_char], rest)
-        return 
+        return
+
 
 def search_prefix(trie, prefix):
     node = trie
@@ -57,14 +61,16 @@ def search_prefix(trie, prefix):
         node = node[char]
     return node
 
+
 def collect_words(node, prefix):
     results = []
     if END in node:
         results.append(prefix)
-    for (char, child) in node.items():
+    for char, child in node.items():
         if END not in node:
             results += collect_words(child, prefix + char)
     return results
+
 
 def trie_autocomplete(trie, prefix):
     node = search_prefix(trie, prefix)
