@@ -12,13 +12,13 @@ micro_world = [
 ]
 
 def test_off_world():
-    y = 0; x = 0; 
+    y = 0; x = 0 
     assert off_world(position=(y, x), world=nano_world) == False
     y = 0; x = -1
     assert off_world(position=(y, x), world=nano_world) == True
-    y = -1; x = 0; 
+    y = -1; x = 0 
     assert off_world(position=(y, x), world=nano_world) == True
-    y = 0; x = 3; 
+    y = 0; x = 3 
     assert off_world(position=(y, x), world=nano_world) == True
     y = 2; x = 0
     assert off_world(position=(y, x), world=nano_world) == True
