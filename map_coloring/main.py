@@ -1,5 +1,5 @@
 def main():
-    print("Hello from trie-autocomplete!")
+    print("Hello from map-coloring!")
 
 
 if __name__ == "__main__":
