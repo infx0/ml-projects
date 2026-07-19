@@ -1,56 +1,6 @@
 import tokenize
 from io import StringIO
 
-start_state = [
-    "(item Saw)",
-    "(item Drill)",
-    "(place Home)",
-    "(place Store)",
-    "(place Bank)",
-    "(agent Me)",
-    "(at Me Home)",
-    "(at Saw Store)",
-    "(at Drill Store)",
-]
-
-goal = [
-    "(item Saw)",
-    "(item Drill)",
-    "(place Home)",
-    "(place Store)",
-    "(place Bank)",
-    "(agent Me)",
-    "(at Me Home)",
-    "(at Drill Me)",
-    "(at Saw Store)",
-]
-
-actions = {
-    "drive": {
-        "action": "(drive ?agent ?from ?to)",
-        "conditions": [
-            "(agent ?agent)",
-            "(place ?from)",
-            "(place ?to)",
-            "(at ?agent ?from)",
-        ],
-        "add": ["(at ?agent ?to)"],
-        "delete": ["(at ?agent ?from)"],
-    },
-    "buy": {
-        "action": "(buy ?purchaser ?seller ?item)",
-        "conditions": [
-            "(item ?item)",
-            "(place ?seller)",
-            "(agent ?purchaser)",
-            "(at ?item ?seller)",
-            "(at ?purchaser ?seller)",
-        ],
-        "add": ["(at ?item ?purchaser)"],
-        "delete": ["(at ?item ?seller)"],
-    },
-}
-
 
 def is_variable(exp):
     return isinstance(exp, str) and exp[0] == "?"
@@ -137,12 +87,16 @@ def unify(exp1, exp2):
 
 def apply_result(result: dict, exp: list) -> None:
     """
-        `apply_result` is a helper function that recursively makes in-place variable substitutions in logic expressions. **Used by**: [action_condition_search](#action_condition_search), [convert_to_fact_or_action](#convert_to_fact_or_action)
+    Is a helper function that recursively makes in-place variable substitutions in
+    logic expressions.
 
-    * **result** dict: the resultant variable to constant mapping from recursive unification.
-    * **exp** list: the logic expression. Modified in-place.
+    Args:
+        result (dict): The resultant variable to constant mapping from recursive
+            unification.
+        exp (list): The logic expression. Modified in-place.
 
-    **returns**: does not return anything and modifies in-place.
+    Returns:
+        None: Does not return anything and modifies in-place.
     """
     for i, e in enumerate(exp):
         if isinstance(e, list):
@@ -153,11 +107,16 @@ def apply_result(result: dict, exp: list) -> None:
 
 def repeat_locations(frame: dict) -> bool:
     """
-        `repeat_locations` is a helper function used to guard against and prune the "?from" and "?to" locations being identical in the recursive DFS search for all possible unifications for an action's precondition. **Used by**: [action_condition_search](#action_condition_search)
+    Is a helper function used to guard against and prune the "?from" and "?to" locations
+    being identical in the recursive DFS search for all possible unifications for an
+    action's precondition.
 
-    * **frame** dict: the mapping of variable bindings.
+    Args:
+        frame (dict): The mapping of variable bindings.
 
-    **returns** bool: return True if there's an instance of "?to" and "?from" being the same location, otherwise returns False.
+    Returns:
+        bool: Return True if there's an instance of "?to" and "?from" being the same
+            location, otherwise returns False.
     """
     if "?from" in frame and "?to" in frame:
         if frame["?from"] == frame["?to"]:
@@ -169,13 +128,17 @@ def action_condition_search(
     current_facts: list[str], conditions: list[str], frame: dict | None = None
 ) -> list[dict]:
     """
-        `action_condition_search` does a recursive DFS and finds all the ways the facts can unify with the pre-conditions for an action, ensuring that ?to and ?from aren't counted as possible permutations of unifications. **Uses**: [action_condition_search](#action_condition_search), [apply_result](#apply_result), [repeat_locations](#repeat_locations), parse, unification **Used by**: [action_successors](#action_successors)
+    Does a recursive DFS and finds all the ways the facts can unify with the
+    pre-conditions for an action, ensuring that ?to and ?from aren't counted as possible
+    permutations of unifications.
 
-    * **current_facts** list[str]: the facts associated with the current state.
-    * **conditions** list[str]: the conditions to unify with.
-    * **frame** list[str]: the compiled unifications from the search.
+    Args:
+        current_facts (list[str]): The facts associated with the current state.
+        conditions (list[str]): The conditions to unify with.
+        frame (list[str]): The compiled unifications from the search.
 
-    **returns** list[dict]: the list of unification dicts.
+    Returns:
+        list[dict]: The list of unification dicts.
     """
     if frame is None:
         frame = {}
@@ -198,23 +161,34 @@ def action_condition_search(
 
 def parenthify(expr: list[str]) -> str:
     """
-        `parenthify` is a helper function used in the process of updating the state when generating successor actions as part of planning. It takes a list of strings and converts it to our parenthetical fact/action format. **Used by**: [convert_to_fact_or_action](#convert_to_fact_or_action)
+    Is a helper function used in the process of updating the state when generating
+    successor actions as part of planning. It takes a list of strings and converts it to
+    our parenthetical fact/action format.
 
-    * **expr**  list[str]: the list of strings to convert.
+    Args:
+        expr (list[str]): The list of strings to convert.
 
-    **returns** str: return a string of fact components enclosed by parenthesis.
+    Returns:
+        str: Return a string of fact components enclosed by parenthesis.
     """
     return "(" + " ".join(expr) + ")"
 
 
 def convert_to_fact_or_action(perm: dict, fact_or_action: str) -> str:
     """
-        `convert_to_fact_or_action` is a helper function used in the process of updating the state when generating successor actions as part of planning. It uses a permutation of unification bindings and a fact from the add or delete list for a particular action to convert the permutation into a state fact that can either be added or deleted from the overall state. **Uses**: [parenthify](#parenthify), [apply_result](#apply_result) **Used by**: [update_state](#update_state)
+    Is a helper function used in the process of updating the state when generating
+    successor actions as part of planning. It uses a permutation of unification bindings
+    and a fact from the add or delete list for a particular action to convert the
+    permutation into a state fact that can either be added or deleted from the overall
+    state.
 
-    * **perm** dict: the permutation of unifications from the recursive search.
-    * **fact** str: the fact from the add/delete list for a particular action.
+    Args:
+        perm (dict): The permutation of unifications from the recursive search.
+        fact_or_action (str): The fact from the add/delete list for a particular action.
 
-    **returns** str: return a string enclosed by parenthesis, representing the fact to be added or deleted from the state.
+    Returns:
+        str: Return a string enclosed by parenthesis, representing the fact to be added
+            or deleted from the state.
     """
     parsed_fact_or_action = parse(fact_or_action)
     apply_result(perm, parsed_fact_or_action)
@@ -224,13 +198,17 @@ def convert_to_fact_or_action(perm: dict, fact_or_action: str) -> str:
 
 def update_state(perm: dict, successor_state: list[str], action: dict) -> list[str]:
     """
-        `update_state` uses a permutation of unification bindings and the add/delete lists from an action to update the facts of a successor state. **Uses**: [convert_to_fact_or_action](#convert_to_fact_or_action), **Used by**: [action_successors](#action_successors)
+    Uses a permutation of unification bindings and the add/delete lists from an action
+    to update the facts of a successor state.
 
-    * **perm** dict: the permutation of unifications from the recursive search.
-    * **successor_state** list[str]: the updated state, based on the add/delete lists for the application action.
-    * **action** dict: the action to use when updating the state.
+    Args:
+        perm (dict): The permutation of unifications from the recursive search.
+        successor_state (list[str]): The updated state, based on the add/delete lists
+            for the application action.
+        action (dict): The action to use when updating the state.
 
-    **returns** list[str]: returns the updated facts for the successor state.
+    Returns:
+        list[str]: Returns the updated facts for the successor state.
     """
     for del_fact in action["delete"]:
         factified = convert_to_fact_or_action(perm, del_fact)
@@ -247,12 +225,17 @@ def action_successors(
     current_facts: list[str], actions: dict
 ) -> list[tuple[list[str], str]]:
     """
-        `action_successors` finds the permissible actions given the current state facts and creates a successor for each permutation of state fact substitutions that make each action permissible. **Uses**: [action_condition_search](#action_condition_search), [update_state](#update_state), **Used by**: [forward_planner](#forward_planner)
+    Finds the permissible actions given the current state facts and creates a successor
+    for each permutation of state fact substitutions that make each action permissible.
 
-    * **current_facts** list[str]: the permutation of unifications from the recursive search.
-    * **action** dict: the action to use when updating the state.
+    Args:
+        current_facts (list[str]): The permutation of unifications from the recursive
+            search.
+        actions (dict): The action to use when updating the state.
 
-    **returns** list[tuple[list[str], str]]: returns the updated facts for the successor state as well as the action in a tuple.
+    Returns:
+        list[tuple[list[str], str]]: Returns the updated facts for the successor state
+            as well as the action in a tuple.
     """
     successors = []
     explored = set()
@@ -272,12 +255,16 @@ def action_successors(
 
 def check_for_goal(current_facts: list[str], goal: list[str]) -> bool:
     """
-        `check_for_goal` check to see if the current state matches the goal. **Used by**: [forward_planner](#forward_planner)
+    Check to see if the current state matches the goal.
 
-    * **current_state** list[str]: the permutation of unifications from the recursive search.
-    * **goal** list[str]: the list of facts that comprise the goal state.
+    Args:
+        current_facts (list[str]): The permutation of unifications from the recursive
+            search.
+        goal (list[str]): The list of facts that comprise the goal state.
 
-    **returns** bool: returns True if the goal matches the current state, otherwise returns False.
+    Returns:
+        bool: Returns True if the goal matches the current state, otherwise returns
+            False.
     """
     state_set = set(current_facts)
     goal_set = set(goal)
@@ -286,12 +273,18 @@ def check_for_goal(current_facts: list[str], goal: list[str]) -> bool:
 
 def interleave_states_and_actions(states: list[list[str]], actions: list[str]) -> list:
     """
-        `interleave_states_and_actions` is a helper function that interleaves the ordered actions, and the resulting state from each action, for use in the forward planner debug mode, to see how the state unfolds over time. **Used by**: [forward_planner](#forward_planner)
+    Is a helper function that interleaves the ordered actions, and the resulting state
+    from each action, for use in the forward planner debug mode, to see how the state
+    unfolds over time.
 
-    * **states** list[list[str]]: the list of states in the path toward the matched goal.
-    * **actions** list[str]: the list of actions taken, in order.
+    Args:
+        states (list[list[str]]): The list of states in the path toward the matched
+            goal.
+        actions (list[str]): The list of actions taken, in order.
 
-    **returns** list: the interleaved states and actions, i.e.  [s0, a1, s1, a2, s2, a3, s3, ...].
+    Returns:
+        list: The interleaved states and actions, i.e.  [s0, a1, s1, a2, s2, a3, s3,
+            ...].
     """
     result = []
     for i, state in enumerate(states):
@@ -305,14 +298,23 @@ def forward_planner(
     start_state: list[str], goal: list[str], actions: dict, debug: bool = False
 ) -> list:
     """
-        `forward_planner`implements forward planning using the DFS psuedocode from Module 2. There's an outer search that checks if the goal has been met and generates child states based on actions, and an inner search in action_successors, that does a search on all the ways the state facts can unify with action conditions. If the goal is met, the ordered actions are returned if debug is False, and the interleaved actions and resulting states are returned if debug is True. **Uses**: [check_for_goal](#check_for_goal), [action_sucessors](#action_successors), [interleave_states_and_actions](#interleave_states_and_actions)
+    Implements forward planning using DFS. There's an outer search that checks if the
+    goal has been met and generates child states based on actions, and an inner search
+    in action_successors, that does a search on all the ways the state facts can unify
+    with action conditions. If the goal is met, the ordered actions are returned if
+    debug is False, and the interleaved actions and resulting states are returned if
+    debug is True.
 
-    * **start_state** list[str]: the initial state facts for the planner.
-    * **goal** list[str]: the list of facts that constitute the goal state.
-    * **actions** dict: the action schema of possible actions, preconditions, and add/delete lists.
-    * **debug** bool: will add the state after each action to the returned list if True.
+    Args:
+        start_state (list[str]): The initial state facts for the planner.
+        goal (list[str]): The list of facts that constitute the goal state.
+        actions (dict): The action schema of possible actions, preconditions, and
+            add/delete lists.
+        debug (bool): Will add the state after each action to the returned list if True.
 
-    **returns** list: the list of actions and state after each action if debug=True, or just the list of ordered actions of debug=False.
+    Returns:
+        list: The list of actions and state after each action if debug=True, or just the
+            list of ordered actions of debug=False.
     """
     start_facts = sorted(start_state)
     explored = set()
@@ -341,6 +343,61 @@ def forward_planner(
 
 
 if __name__ == "__main__":
-    print(forward_planner(start_state=start_state, goal=goal, actions=actions, debug=False))
+    start_state = [
+        "(item Saw)",
+        "(item Drill)",
+        "(place Home)",
+        "(place Store)",
+        "(place Bank)",
+        "(agent Me)",
+        "(at Me Home)",
+        "(at Saw Store)",
+        "(at Drill Store)",
+    ]
 
-    print(forward_planner(start_state=start_state, goal=goal, actions=actions, debug=True))
+    goal = [
+        "(item Saw)",
+        "(item Drill)",
+        "(place Home)",
+        "(place Store)",
+        "(place Bank)",
+        "(agent Me)",
+        "(at Me Home)",
+        "(at Drill Me)",
+        "(at Saw Store)",
+    ]
+
+    actions = {
+        "drive": {
+            "action": "(drive ?agent ?from ?to)",
+            "conditions": [
+                "(agent ?agent)",
+                "(place ?from)",
+                "(place ?to)",
+                "(at ?agent ?from)",
+            ],
+            "add": ["(at ?agent ?to)"],
+            "delete": ["(at ?agent ?from)"],
+        },
+        "buy": {
+            "action": "(buy ?purchaser ?seller ?item)",
+            "conditions": [
+                "(item ?item)",
+                "(place ?seller)",
+                "(agent ?purchaser)",
+                "(at ?item ?seller)",
+                "(at ?purchaser ?seller)",
+            ],
+            "add": ["(at ?item ?purchaser)"],
+            "delete": ["(at ?item ?seller)"],
+        },
+    }
+    print(
+        forward_planner(
+            start_state=start_state, goal=goal, actions=actions, debug=False
+        )
+    )
+
+    print(
+        forward_planner(start_state=start_state, goal=goal, actions=actions, debug=True)
+    )

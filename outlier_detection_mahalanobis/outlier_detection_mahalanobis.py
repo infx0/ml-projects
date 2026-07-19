@@ -20,7 +20,6 @@ class sigma_ellipse_plot:
         std_devs: list[float],
         df=None,
         target="setosa",
-
         target_header="species",
         feature1="sepal_length",
         feature2="petal_width",
@@ -147,130 +146,137 @@ class sigma_ellipse_plot:
 
 
 ## Import Dataset ##
-
-iris = datasets.load_iris()
-df = pd.DataFrame(iris.data, columns=iris.feature_names)
-df.columns = (
-    df.columns.str.replace(" ", "_")
-    .str.replace(r"\(cm\)", "", regex=True)
-    .str.lower()
-    .str.rstrip("_")
-)
-df["species"] = iris.target
-df["species"] = df["species"].map({0: "setosa", 1: "versicolor", 2: "virginica"})
-print(df.head())
-
-## Feature Definition ##
-
-feature1 = "sepal_length"
-feature2 = "petal_width"
-
-## Species Specific Ellipse Generation ##
-
-# add custom standard deviations
-custom_std_devs = [1.0, 2.0, 3.0]
-
-setosa_ellipses_obj = sigma_ellipse_plot(
-    df=df,
-    target="setosa",
-    feature1=feature1,
-    feature2=feature2,
-    std_devs=custom_std_devs,
-)
-setosa_df, setosa_ellipses, setosa_mu_X, setosa_mu_Y = setosa_ellipses_obj.pipeline()
-setosa_plot_labels = setosa_ellipses_obj.get_labels()
-
-versicolor_ellipses_obj = sigma_ellipse_plot(
-    df=df,
-    target="versicolor",
-    feature1=feature1,
-    feature2=feature2,
-    std_devs=custom_std_devs,
-)
-versicolor_df, versicolor_ellipses, versicolor_mu_X, versicolor_mu_Y = (
-    versicolor_ellipses_obj.pipeline()
-)
-versicolor_plot_labels = versicolor_ellipses_obj.get_labels()
-
-virginica_ellipses_obj = sigma_ellipse_plot(
-    df=df,
-    target="virginica",
-    feature1=feature1,
-    feature2=feature2,
-    std_devs=custom_std_devs,
-)
-virginica_df, virginica_ellipses, virginica_mu_X, virginica_mu_Y = (
-    virginica_ellipses_obj.pipeline()
-)
-virginica_plot_labels = virginica_ellipses_obj.get_labels()
-
-## Visualization of Ellipse Plots ##
-
-sns.set_style("white")
-
-df_subset = df[[feature1, feature2, "species"]]
-
-# palette order - setosa, virginica, versicolor
-petal_width_plot = sns.jointplot(
-    data=df_subset,
-    x=feature1,
-    y=feature2,
-    hue="species",
-    palette=["#0747a1", "#d24e01", "#1e5631"],
-    height=10,
-)
-colors_for_plot_setosa = ["#1065c0", "#1a8ae5", "#41a7f5"]
-colors_for_plot_virginica = ["#4c9a2a", "#68bb59", "#acdf87"]
-colors_for_plot_versicolor = ["#dc6601", "#e27602", "#e88504"]
-
-# Dynamic title for chart
-plt.suptitle(f"Error Ellipses for {feature1} and {feature2}")
-
-plt.scatter(
-    setosa_mu_X, setosa_mu_Y, c="#1F51FF", s=150, label="Setosa mean", marker="$\mu$"
-)
-plt.scatter(
-    versicolor_mu_X,
-    versicolor_mu_Y,
-    c="#FF6700",
-    s=150,
-    label="Versicolor mean",
-    marker="$\mu$",
-)
-plt.scatter(
-    virginica_mu_X,
-    virginica_mu_Y,
-    c="#2Bc20e",
-    s=150,
-    label="Virginica mean",
-    marker="$\mu$",
-)
-plt.grid()
-plt.legend()
-
-# Plots the ellipses for each species, with the appropriate colors
-for i in range(0, len(setosa_ellipses)):
-    plt.plot(
-        setosa_ellipses[i][0] + setosa_mu_X,
-        setosa_ellipses[i][1] + setosa_mu_Y,
-        colors_for_plot_setosa[i],
-        label=setosa_plot_labels[i],
+if __name__ == "__main__":
+    iris = datasets.load_iris()
+    df = pd.DataFrame(iris.data, columns=iris.feature_names)
+    df.columns = (
+        df.columns.str.replace(" ", "_")
+        .str.replace(r"\(cm\)", "", regex=True)
+        .str.lower()
+        .str.rstrip("_")
     )
-    plt.plot(
-        versicolor_ellipses[i][0] + versicolor_mu_X,
-        versicolor_ellipses[i][1] + versicolor_mu_Y,
-        colors_for_plot_versicolor[i],
-        label=versicolor_plot_labels[i],
-    )
-    plt.plot(
-        virginica_ellipses[i][0] + virginica_mu_X,
-        virginica_ellipses[i][1] + virginica_mu_Y,
-        colors_for_plot_virginica[i],
-        label=virginica_plot_labels[i],
-    )
+    df["species"] = iris.target
+    df["species"] = df["species"].map({0: "setosa", 1: "versicolor", 2: "virginica"})
+    print(df.head())
 
-# Save the plot as an image
-plt.savefig("MahalanobisOultlierExample.svg")
+    ## Feature Definition ##
 
-# Show the plot (optional)
-plt.show()
+    feature1 = "sepal_length"
+    feature2 = "petal_width"
+
+    ## Species Specific Ellipse Generation ##
+
+    # add custom standard deviations
+    custom_std_devs = [1.0, 2.0, 3.0]
+
+    setosa_ellipses_obj = sigma_ellipse_plot(
+        df=df,
+        target="setosa",
+        feature1=feature1,
+        feature2=feature2,
+        std_devs=custom_std_devs,
+    )
+    setosa_df, setosa_ellipses, setosa_mu_X, setosa_mu_Y = (
+        setosa_ellipses_obj.pipeline()
+    )
+    setosa_plot_labels = setosa_ellipses_obj.get_labels()
+
+    versicolor_ellipses_obj = sigma_ellipse_plot(
+        df=df,
+        target="versicolor",
+        feature1=feature1,
+        feature2=feature2,
+        std_devs=custom_std_devs,
+    )
+    versicolor_df, versicolor_ellipses, versicolor_mu_X, versicolor_mu_Y = (
+        versicolor_ellipses_obj.pipeline()
+    )
+    versicolor_plot_labels = versicolor_ellipses_obj.get_labels()
+
+    virginica_ellipses_obj = sigma_ellipse_plot(
+        df=df,
+        target="virginica",
+        feature1=feature1,
+        feature2=feature2,
+        std_devs=custom_std_devs,
+    )
+    virginica_df, virginica_ellipses, virginica_mu_X, virginica_mu_Y = (
+        virginica_ellipses_obj.pipeline()
+    )
+    virginica_plot_labels = virginica_ellipses_obj.get_labels()
+
+    ## Visualization of Ellipse Plots ##
+
+    sns.set_style("white")
+
+    df_subset = df[[feature1, feature2, "species"]]
+
+    # palette order - setosa, virginica, versicolor
+    petal_width_plot = sns.jointplot(
+        data=df_subset,
+        x=feature1,
+        y=feature2,
+        hue="species",
+        palette=["#0747a1", "#d24e01", "#1e5631"],
+        height=10,
+    )
+    colors_for_plot_setosa = ["#1065c0", "#1a8ae5", "#41a7f5"]
+    colors_for_plot_virginica = ["#4c9a2a", "#68bb59", "#acdf87"]
+    colors_for_plot_versicolor = ["#dc6601", "#e27602", "#e88504"]
+
+    # Dynamic title for chart
+    plt.suptitle(f"Error Ellipses for {feature1} and {feature2}")
+
+    plt.scatter(
+        setosa_mu_X,
+        setosa_mu_Y,
+        c="#1F51FF",
+        s=150,
+        label="Setosa mean",
+        marker="$\mu$",
+    )
+    plt.scatter(
+        versicolor_mu_X,
+        versicolor_mu_Y,
+        c="#FF6700",
+        s=150,
+        label="Versicolor mean",
+        marker="$\mu$",
+    )
+    plt.scatter(
+        virginica_mu_X,
+        virginica_mu_Y,
+        c="#2Bc20e",
+        s=150,
+        label="Virginica mean",
+        marker="$\mu$",
+    )
+    plt.grid()
+    plt.legend()
+
+    # Plots the ellipses for each species, with the appropriate colors
+    for i in range(0, len(setosa_ellipses)):
+        plt.plot(
+            setosa_ellipses[i][0] + setosa_mu_X,
+            setosa_ellipses[i][1] + setosa_mu_Y,
+            colors_for_plot_setosa[i],
+            label=setosa_plot_labels[i],
+        )
+        plt.plot(
+            versicolor_ellipses[i][0] + versicolor_mu_X,
+            versicolor_ellipses[i][1] + versicolor_mu_Y,
+            colors_for_plot_versicolor[i],
+            label=versicolor_plot_labels[i],
+        )
+        plt.plot(
+            virginica_ellipses[i][0] + virginica_mu_X,
+            virginica_ellipses[i][1] + virginica_mu_Y,
+            colors_for_plot_virginica[i],
+            label=virginica_plot_labels[i],
+        )
+
+    # Save the plot as an image
+    plt.savefig("MahalanobisOultlierExample.svg")
+
+    # Show the plot (optional)
+    plt.show()

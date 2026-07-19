@@ -1,4 +1,4 @@
-from forward_planner import (
+from planning.forward_planner import (
     apply_result,
     repeat_locations,
     action_condition_search,
@@ -34,11 +34,11 @@ def test_apply_result():
 
 def test_repeat_locations():
     frame = {"?agent": "me"}
-    assert repeat_locations(frame) == False
+    assert not repeat_locations(frame)
     frame = {"?from": "north_pole", "?to": "south_pole"}
-    assert repeat_locations(frame) == False
+    assert not repeat_locations(frame)
     frame = {"?agent": "me", "?from": "north_pole", "?to": "north_pole"}
-    assert repeat_locations(frame) == True
+    assert repeat_locations(frame)
 
 
 def test_action_condition_search():
@@ -175,7 +175,6 @@ def test_check_for_goal():
     assert check_for_goal(current_facts, test_goal)
     test_goal = ["(agent neo)", "(at matrix)"]
     assert not check_for_goal(current_facts, test_goal)
-    current_state = []
     assert not check_for_goal(current_facts, test_goal)
 
 

@@ -1,7 +1,3 @@
-costs = {".": -1, "*": -3, "^": -5, "~": -7}
-cardinal_moves = [(0, -1), (1, 0), (0, 1), (-1, 0)]
-
-
 def read_world(filename):
     result = []
     with open(filename) as f:
@@ -15,14 +11,18 @@ def init_rewards(
     world: list[list[str]], costs: dict, goal_pos: tuple, goal_reward: float
 ) -> dict[tuple, float]:
     """
-        `init_rewards` initializes a reward dict with an associated reward for each state in the applicable world, for use in RL value iteration. **Used by**: [value_iteration](#value-iteration)
+    Initializes a reward dict with an associated reward for each state in the applicable
+    world, for use in RL value iteration.
 
-    * **world** list[list[str]]: the input world from which to initialize the rewards.
-    * **costs** dict: the cost per specific terrain type.
-    * **goal_pos** tuple: the position of the goal state in the world as a (row, col) tuple.
-    * **goal_reward** float: the reward for the goal state.
+    Args:
+        world (list[list[str]]): The input world from which to initialize the rewards.
+        costs (dict): The cost per specific terrain type.
+        goal_pos (tuple): The position of the goal state in the world as a (row, col)
+            tuple.
+        goal_reward (float): The reward for the goal state.
 
-    **returns**: dict[tuple, float]: the dict with the reward in each state.
+    Returns:
+        dict[tuple, float]: The dict with the reward in each state.
     """
     num_rows = len(world)
     num_cols = len(world[0])
@@ -38,12 +38,15 @@ def init_rewards(
 
 def init_val_matrix(world: list[list[str]]) -> dict[tuple, float]:
     """
+    Initializes the value matrix to zero, but as a dict, using a tuple key for the
+    location, and float for the value.
 
-    `init_val_matrix` initializes the value matrix to zero, but as a dict, using a tuple key for the location, and float for the value. **Used by**: [value_iteration](#value-iteration)
+    Args:
+        world (list[list[str]]): The input world to use for reinforcement learning
+            training.
 
-    * **world** list[list[str]]: the input world to use for reinforcement learning training.
-
-    **returns**: dict[tuple, float]: the value dict.
+    Returns:
+        dict[tuple, float]: The value dict.
     """
     num_rows = len(world)
     num_cols = len(world[0])
@@ -58,12 +61,15 @@ def init_val_matrix(world: list[list[str]]) -> dict[tuple, float]:
 
 def find_mountains(world: list[list[str]]) -> set[tuple]:
     """
-        `find_mountains` compiles a set of mountain locations as tuples, based on the input world, for use in determining what the valid actions are in the value iteration algorithm.
-    **Used by**: [value_iteration](#value-iteration)
+    Compiles a set of mountain locations as tuples, based on the input world, for use in
+    determining what the valid actions are in the value iteration algorithm.
 
-    * **world** list[list[str]]: the input world from which to create the mountain location set.
+    Args:
+        world (list[list[str]]): The input world from which to create the mountain
+            location set.
 
-    **returns**: set[tuple]: the set of mountain locations as tuples.
+    Returns:
+        set[tuple]: The set of mountain locations as tuples.
     """
     mountains = []
     num_rows = len(world)
@@ -77,13 +83,18 @@ def find_mountains(world: list[list[str]]) -> set[tuple]:
 
 def valid_pos(world: list[list], mountains: list[tuple], pos: tuple) -> bool:
     """
-        `valid_pos` tests whether a successor state is a valid position within the given world. It checks if the successor state is off the map, or on a mountain, which is not allowed. It returns a bool indicating if the position is valid, allowing the main value iteration algorithm to assess the action. **Used by**: [value_iteration](#value-iteration)
+    Tests whether a successor state is a valid position within the given world. It
+    checks if the successor state is off the map, or on a mountain, which is not
+    allowed. It returns a bool indicating if the position is valid, allowing the main
+    value iteration algorithm to assess the action.
 
-    * **world** list[list]: the input world from which to assess valid positions.
-    * **mountains** list[tuple]: a list of mountain locations within the world.
-    * **pos** tuple: a tuple of the (row,col) coordinates for evaluation.
+    Args:
+        world (list[list]): The input world from which to assess valid positions.
+        mountains (list[tuple]): A list of mountain locations within the world.
+        pos (tuple): A tuple of the (row,col) coordinates for evaluation.
 
-    **returns**: list[tuple]: the list of mountain locations as tuples.
+    Returns:
+        list[tuple]: The list of mountain locations as tuples.
     """
     max_row = len(world)
     max_col = len(world[0])
@@ -104,14 +115,19 @@ def convergence(
     value1: dict[tuple, float], value2: dict[tuple, float], epsilon: float
 ) -> bool | None:
     """
+    Tests to see if the value matrix has converged by comparing the max value of the
+    absolute difference of V with V_last. It will return none if the matrix elements
+    don't match (earlier in the code states with mountains are skipped, and these
+    "holes" should end up as identical between V and V_last).
 
-    `convergence` tests to see if the value matrix has converged by comparing the max value of the absolute difference of V with V_last. It will return none if the matrix elements don't match (earlier in the code states with mountains are skipped, and these "holes" should end up as identical between V and V_last). **Used by**: [value_iteration](#value-iteration)
+    Args:
+        value1 (dict[tuple, float]): The first value matrix for comparison.
+        value2 (dict[tuple, float]): The second value matrix for comparison.
+        epsilon (float): The threshold value that controls the bool that's returned.
 
-    * **value1** dict[tuple, float]: the first value matrix for comparison.
-    * **value2** dict[tuple, float]: the second value matrix for comparison.
-    * **epsilon** float: the threshold value that controls the bool that's returned.
-
-    **returns**: bool | None: returns None if there was an error, True if the algorithm has converged, or False if it hasn't.
+    Returns:
+        bool | None: Returns None if there was an error, True if the algorithm has
+            converged, or False if it hasn't.
     """
     keys1 = set(value1.keys())
     keys2 = set(value2.keys())
@@ -137,18 +153,21 @@ def best_action_value(
     V_last: dict,
 ) -> tuple[float, tuple]:
     """
-        `best_action_value` Finds the max of Q summed across the possible actions for stochastic value iteration, and the corresponding argmax of Q. **Used by**: [value_iteration](#value-iteration)
+    Finds the max of Q summed across the possible actions for stochastic value
+    iteration, and the corresponding argmax of Q.
 
-    * **curr_pos** tuple: the current position of the agent in the world as a tuple.
-    * **actions** list: the possible actions the agent can take.
-    * **world** list[list]: the input world for the agent to use.
-    * **mountains** list: the mountain locations in the world.
-    * **rewards** dict: the reward for each world state based on terrain type.
-    * **gamma** float: the discount value.
-    * **V_last** dict: the previous values for the value matrix.
+    Args:
+        curr_pos (tuple): The current position of the agent in the world as a tuple.
+        actions (list): The possible actions the agent can take.
+        world (list[list]): The input world for the agent to use.
+        mountains (list): The mountain locations in the world.
+        rewards (dict): The reward for each world state based on terrain type.
+        gamma (float): The discount value.
+        V_last (dict): The previous values for the value matrix.
 
-
-    **returns**: tuple[float, tuple]: returns None if there was an error, True if the algorithm has converged, or False if it hasn't.
+    Returns:
+        tuple[float, tuple]: Returns None if there was an error, True if the algorithm
+            has converged, or False if it hasn't.
     """
     max_q = -1e10
     best_a = (0, 0)
@@ -184,16 +203,23 @@ def value_iteration(
     gamma: float,
 ) -> dict[tuple, tuple]:
     """
-        `value_iteration` runs the stochastic value iteration algorithm for reinforcement learning. It uses an input world, a dictionary of costs per terrain type, a goal position, the reward for that goal position, a list of actions, and a discount value to determine the optimal policy. It checks for convergence at the end of each iteration, and also bails after max_iters iterations if it hasn't converged by then, to avoid infinite loops. **Uses**: [init_rewards](#init_rewards), [init_val_matrix](#init_val_matrix), [find_mountains](#find_mountains), [valid_pos](#valid_pos), [convergence](#convergence), [best_action_value](#best_action_value)
+    Runs the stochastic value iteration algorithm for reinforcement learning. It uses an
+    input world, a dictionary of costs per terrain type, a goal position, the reward for
+    that goal position, a list of actions, and a discount value to determine the optimal
+    policy. It checks for convergence at the end of each iteration, and also bails after
+    max_iters iterations if it hasn't converged by then, to avoid infinite loops.
 
-    * **world** list[list]: the world to run the value iteration algorithm on.
-    * **costs** dict: the cost lookup per terrain type.
-    * **goal** tuple: the goal position within the world.
-    * **reward** float: the reward value for reaching the goal.
-    * **actions** list: the possible actions that can be taken in each state.
-    * **gamma** float: the discount value for the algorithm.
+    Args:
+        world (list[list]): The world to run the value iteration algorithm on.
+        costs (dict): The cost lookup per terrain type.
+        goal (tuple): The goal position within the world.
+        reward (float): The reward value for reaching the goal.
+        actions (list): The possible actions that can be taken in each state.
+        gamma (float): The discount value for the algorithm.
 
-    **returns**: dict[tuple, tuple]: returns the optimal policy as a dict with the state/position as key and the cardinal move as value.
+    Returns:
+        dict[tuple, tuple]: Returns the optimal policy as a dict with the state/position
+            as key and the cardinal move as value.
     """
     epsilon = 0.01
     policy = {}
@@ -222,12 +248,15 @@ def pretty_print_policy(
     cols: int, rows: int, policy: dict[tuple, tuple], goal: tuple
 ) -> None:
     """
-        `pretty_print_policy` print the policy derived from the stochastic value iteration algorithm as a sequence of string rows and columns.
+    Print the policy derived from the stochastic value iteration algorithm as a
+    sequence of string rows and columns.
 
-    * **cols**: int: the number of columns in the world.
-    * **rows** int: the number of rows in the world.
-    * **policy** dict[tuple, tuple]: the policy derived from the value iteration algorithm, as a dict of states and actions.
-    * **goal** tuple: the state/position of the goal.
+    Args:
+        cols (int): The number of columns in the world.
+        rows (int): The number of rows in the world.
+        policy (dict[tuple, tuple]): The policy derived from the value iteration
+            algorithm, as a dict of states and actions.
+        goal (tuple): The state/position of the goal.
     """
     actions = {(0, 1): ">", (0, -1): "<", (1, 0): "v", (-1, 0): "^"}
     grid = [["x" for _ in range(cols)] for _ in range(rows)]
@@ -241,6 +270,9 @@ def pretty_print_policy(
 
 
 if __name__ == "__main__":
+    costs = {".": -1, "*": -3, "^": -5, "~": -7}
+    cardinal_moves = [(0, -1), (1, 0), (0, 1), (-1, 0)]
+
     # small world
     small_world = read_world("small.txt")
     num_rows = len(small_world)

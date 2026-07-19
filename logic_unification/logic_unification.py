@@ -35,11 +35,14 @@ def is_constant(exp):
 
 def format_substitution_list(subst: dict) -> dict:
     """
-        `format_substitution_list` is a helper function that converts dictionary values comprised of string lists into single strings for use in checking the substition lists during unit tests. **Used by**: [unification](#unification)
+    Is a helper function that converts dictionary values comprised of string lists into
+    single strings for use in checking the substition lists during unit tests.
 
-    * **subst** dict: the dictionary to evaluate for modification.
+    Args:
+        subst (dict): The dictionary to evaluate for modification.
 
-    **returns** dict: return the altered dictionary.
+    Returns:
+        dict: Return the altered dictionary.
     """
     subst = dict(sorted(subst.items()))
     for k, v in subst.items():
@@ -53,12 +56,16 @@ def format_substitution_list(subst: dict) -> dict:
 
 def apply_result(result: dict, exp: list) -> None:
     """
-        `apply_result` is a helper function that recursively makes in-place variable substitutions in logic expressions. **Used by**: [unification](#unification)
+    Is a helper function that recursively makes in-place variable substitutions in logic
+    expressions.
 
-    * **result** dict: the resultant variable to constant mapping from recursive unification.
-    * **exp** list: the logic expression. Modified in-place.
+    Args:
+        result (dict): The resultant variable to constant mapping from recursive
+            unification.
+        exp (list): The logic expression. Modified in-place.
 
-    **returns**: does not return anything and modifies in-place.
+    Returns:
+        None: Does not return anything and modifies in-place.
     """
     for i, e in enumerate(exp):
         if isinstance(e, list):
@@ -69,13 +76,16 @@ def apply_result(result: dict, exp: list) -> None:
 
 def unification(list_expression1, list_expression2) -> dict:
     """
+    Takes two lists of strings that have been parsed by the parse function, and runs the
+    unification algorithm on them, evaluating what substitution can be made, if any,
+    that make the expressions syntactically equal.
 
-    `unification` takes two lists of strings that have been parsed by the parse function, and runs the unification algorithm on them, evaluating what substitution can be made, if any, that make the expressions syntactically equal . **Uses**: [is_constant](#is_constant), [is_variable](#is_variable), [unification](#unification), [apply_result](#apply_result), [format_substitution_list](#format_substitution_list) **Used by**: [unify](#unify)
+    Args:
+        list_expression1 (list): The first parsed logic expression.
+        list_expression2 (list): The second parsed logic expression.
 
-    * **list_expression1** list: the first parsed logic expression.
-    * **list_expression2** list: the second parsed logic expression.
-
-    **returns** dict: returns the substitution list as a result of the unification algorithm.
+    Returns:
+        dict: Returns the substitution list as a result of the unification algorithm.
     """
     if (is_constant(list_expression1) or not list_expression1) and (
         is_constant(list_expression2) or not list_expression2
@@ -137,41 +147,50 @@ def unify(s_expression1, s_expression2):
     return unification(list_expression1, list_expression2)
 
 
-self_check_test_cases = [
-    ["(son Barney Barney)", "(daughter Wilma Pebbles)", None],
-    ["Fred", "Barney", None],
-    ["Pebbles", "Pebbles", {}],
-    ["(quarry_worker Fred)", "(quarry_worker ?x)", {"?x": "Fred"}],
-    ["(son Barney ?x)", "(son ?y Bam_Bam)", {"?x": "Bam_Bam", "?y": "Barney"}],
-    ["(married ?x ?y)", "(married Barney Wilma)", {"?x": "Barney", "?y": "Wilma"}],
-    ["(son Barney ?x)", "(son ?y (son Barney))", {"?x": "son Barney", "?y": "Barney"}],
-    ["(son Barney ?x)", "(son ?y (son ?y))", {"?x": "son Barney", "?y": "Barney"}],
-    ["(son Barney Bam_Bam)", "(son ?y (son Barney))", None],
-    ["(loves Fred Fred)", "(loves ?x ?x)", {"?x": "Fred"}],
-    ["(future George Fred)", "(future ?y ?y)", None],
-]
-for case in self_check_test_cases:
-    exp1, exp2, expected = case
-    actual = unify(exp1, exp2)
-    print(f"actual = {actual}")
-    print(f"expected = {expected}")
-    print("\n")
-    assert expected == actual
+if __name__ == "__main__":
+    self_check_test_cases = [
+        ["(son Barney Barney)", "(daughter Wilma Pebbles)", None],
+        ["Fred", "Barney", None],
+        ["Pebbles", "Pebbles", {}],
+        ["(quarry_worker Fred)", "(quarry_worker ?x)", {"?x": "Fred"}],
+        ["(son Barney ?x)", "(son ?y Bam_Bam)", {"?x": "Bam_Bam", "?y": "Barney"}],
+        ["(married ?x ?y)", "(married Barney Wilma)", {"?x": "Barney", "?y": "Wilma"}],
+        [
+            "(son Barney ?x)",
+            "(son ?y (son Barney))",
+            {"?x": "son Barney", "?y": "Barney"},
+        ],
+        ["(son Barney ?x)", "(son ?y (son ?y))", {"?x": "son Barney", "?y": "Barney"}],
+        ["(son Barney Bam_Bam)", "(son ?y (son Barney))", None],
+        ["(loves Fred Fred)", "(loves ?x ?x)", {"?x": "Fred"}],
+        ["(future George Fred)", "(future ?y ?y)", None],
+    ]
+    for case in self_check_test_cases:
+        exp1, exp2, expected = case
+        actual = unify(exp1, exp2)
+        print(f"actual = {actual}")
+        print(f"expected = {expected}")
+        print("\n")
+        assert expected == actual
 
-
-new_test_cases = [
-    ["(son Barney Barney)", "(daughter Wilma Pebbles)", None, "non-equal constants"],
-    ["(?x)", "(?x)", None, "equal variables"],
-    ["(?x)", "(?y)", {"?x": "?y"}, "non-equal variables"],
-    ["(?x)", "(?x (?x))", None, "nested equal variables"],
-    ["(?x ?y ?z)", "(a b c)", {"?x": "a", "?y": "b", "?z": "c"}, "three variables"],
-    ["()", "()", {}, "no inputs, can still unify"],
-]
-for case in new_test_cases:
-    exp1, exp2, expected, message = case
-    actual = unify(exp1, exp2)
-    print(f"Testing {message}...")
-    print(f"actual = {actual}")
-    print(f"expected = {expected}")
-    print("\n")
-    assert expected == actual
+    new_test_cases = [
+        [
+            "(son Barney Barney)",
+            "(daughter Wilma Pebbles)",
+            None,
+            "non-equal constants",
+        ],
+        ["(?x)", "(?x)", None, "equal variables"],
+        ["(?x)", "(?y)", {"?x": "?y"}, "non-equal variables"],
+        ["(?x)", "(?x (?x))", None, "nested equal variables"],
+        ["(?x ?y ?z)", "(a b c)", {"?x": "a", "?y": "b", "?z": "c"}, "three variables"],
+        ["()", "()", {}, "no inputs, can still unify"],
+    ]
+    for case in new_test_cases:
+        exp1, exp2, expected, message = case
+        actual = unify(exp1, exp2)
+        print(f"Testing {message}...")
+        print(f"actual = {actual}")
+        print(f"expected = {expected}")
+        print("\n")
+        assert expected == actual

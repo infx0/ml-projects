@@ -21,11 +21,17 @@ def create_folds(xs: list, n: int) -> list[list[dict]]:
 
 def is_homogenous(data: list[dict], attr: str = "eat") -> bool:
     """
-        `is_homogenous` looks at a attribute from the dataset and determines if all targets have the same value. **Used by**: [train](#train)
-    * **data** list[dict]: the dataset to evaluate.
-    * **attr** str: the attribute name to evaluate in the target. Defaults to "eat".
+    Looks at a attribute from the dataset and determines if all targets have the same
+    value.
 
-    **returns** bool: returns True if all targets have the same value (e.g. "edible", "poisonous") or False if they don't.
+    Args:
+        data (list[dict]): The dataset to evaluate.
+        attr (str): The attribute name to evaluate in the target. Defaults to
+            "eat".
+
+    Returns:
+        bool: Returns True if all targets have the same value (e.g. "edible",
+            "poisonous") or False if they don't.
     """
     var = []
     for row in data:
@@ -38,11 +44,19 @@ def is_homogenous(data: list[dict], attr: str = "eat") -> bool:
 
 def majority_label(data: list[dict], attr: str = "eat") -> str:
     """
-        `majority_label` evaluates the target attributes (defaults to "eat") for the given dataset, and returns the value with the greatest number of occurrences. This is needed in the ID3 algorithm for cases where there are no more attributes to evaluate but the remaining data contains heterogenous target attributes. **Used by**: [train](#train)
-    * **data** list[dict]: the input dataset to evaluate the target attribute from.
-    * **attr** str: the target attribute, defaults to "eat".
+    Evaluates the target attributes (defaults to "eat") for the given dataset, and
+    returns the value with the greatest number of occurrences. This is needed in the ID3
+    algorithm for cases where there are no more attributes to evaluate but the remaining
+    data contains heterogenous target attributes.
 
-    **returns** str: the target value with the greatest number of occurrences (i.e. the majority label).
+    Args:
+        data (list[dict]): The input dataset to evaluate the target attribute
+            from.
+        attr (str): The target attribute, defaults to "eat".
+
+    Returns:
+        str: The target value with the greatest number of occurrences (i.e. the majority
+            label).
     """
     counts = {}
     for row in data:
@@ -61,13 +75,22 @@ def pick_best_attribute(
     data: list[dict], attr: set[str], target_attr: str = "eat"
 ) -> tuple[str, float]:
     """
-        `pick_best_attribute` chooses the attribute as determined by information gain, i.e. the attribute with the lowest entropy. The best attribute will then be used to further split the data in the ID3 algorithm. **Used by**: [train](#train)
+    Chooses the attribute as determined by information gain, i.e. the attribute with the
+    lowest entropy. The best attribute will then be used to further split the data in
+    the ID3 algorithm.
 
-    * **data** list[dict]: the remaining dataset used to form the next decision split.
-    * **attr** set[str]: the group of attributes/features in the data.
-    * **target_attr** str: the attribute that forms the label for evaluation, e.g. "edible", "poisonous".
+    Args:
+        data (list[dict]): The remaining dataset used to form the next decision
+            split.
+        attr (set[str]): The group of attributes/features in the data.
+        target_attr (str): The attribute that forms the label for evaluation,
+            e.g. "edible", "poisonous".
 
-    **returns** tuple[str, float]: returns the best attribute to use for the next split, as well as the minimum calculated entropy, mainly used for debugging and unit test purposes. It will return None and the default min_entropy value if the function fails to find an attribute.
+    Returns:
+        tuple[str, float]: Returns the best attribute to use for the next split, as well
+            as the minimum calculated entropy, mainly used for debugging and unit test
+            purposes. It will return None and the default min_entropy value if the
+            function fails to find an attribute.
     """
     min_entropy = 99999.0
     best_attr = None
@@ -98,14 +121,23 @@ def train(
     default: str | None = None,
 ) -> dict | None:
     """
-       `train` recursively trains a decision tree using the ID3 algorithm. It checks if any training data is remaining in the subtree, and if so, then checks to see if all the labels are homogenous. It returns the label if so. If they're not, it will then find the majority label if no attributes are left to split on. Otherwise, it will find the best remaining attribute according to information gain and recurse the tree. **Uses**: [is_homogenous](#is_homogenous), [majority_label](#majority_label), [pick_best_attribute](#pick_best_attribute), [train](#train)
+    Recursively trains a decision tree using the ID3 algorithm. It checks if any
+    training data is remaining in the subtree, and if so, then checks to see if all the
+    labels are homogenous. It returns the label if so. If they're not, it will then find
+    the majority label if no attributes are left to split on. Otherwise, it will find
+    the best remaining attribute according to information gain and recurse the tree.
 
-    * **training_data** list[dict]: the remaining dataset to recursively train the decision tree on.
-    * **attributes** set[dict]: the remaining attributes to use for splitting the tree.
-    * **target_attr** str: the attribute that represents the target label, e.g. "edible", "poisonous". Defaults to "eat".
-    * **default** str | None: the default label. Defaults to None.
+    Args:
+        training_data (list[dict]): The remaining dataset to recursively train the
+            decision tree on.
+        attributes (set[dict]): The remaining attributes to use for splitting the tree.
+        target_attr (str): The attribute that represents the target label, e.g.
+            "edible", "poisonous". Defaults to "eat".
+        default (str | None): The default label. Defaults to None.
 
-    **returns** dict | None: returns the sub-tree represented as a nested dict. If there is no data left the function will return None.
+    Returns:
+        dict | None: Returns the sub-tree represented as a nested dict. If there is no
+            data left the function will return None.
     """
     if not training_data:
         return default
@@ -126,12 +158,19 @@ def train(
 
 def classify_row(tree: dict, row: dict, default: str | None = None) -> str:
     """
-        `classify_row` moves through a decision tree trained by the ID3 algorithm to classify a single observation. It contains a fallback label of "e" if an attribute choice is observed during test that wasn't seen in the training set. **Used by**: [classify](#classify) **Uses**: [classify_row](#classify_row)
-    * **tree** dict: the pre-trainined decision tree as a nested dictionary.
-    * **row** dict: the dictionary that corresponds to all the attributes for a single observation.
-    * **default** str | None: the default label to assign if an attribute choice is observed during test that wasn't seen during training.
+    Moves through a decision tree trained by the ID3 algorithm to classify a single
+    observation. It contains a fallback label of "e" if an attribute choice is observed
+    during test that wasn't seen in the training set.
 
-    **returns** str: returns the predicted label for the given observation.
+    Args:
+        tree (dict): The pre-trainined decision tree as a nested dictionary.
+        row (dict): The dictionary that corresponds to all the attributes for a
+            single observation.
+        default (str | None): The default label to assign if an attribute choice is
+            observed during test that wasn't seen during training.
+
+    Returns:
+        str: Returns the predicted label for the given observation.
     """
     if not isinstance(tree, dict):
         return tree
@@ -146,13 +185,18 @@ def classify_row(tree: dict, row: dict, default: str | None = None) -> str:
 
 def classify(tree: dict, observations: list[dict], pred_key="pred") -> list[dict]:
     """
-        `classify` retrieves predicted classifications for a given dataset, as part of a pipeline to evaluate the efficacy of an ID3 decision tree. It wraps classify_row to form a prediction for each observation. **Uses**: [classify_row](#classify_row)
+    Retrieves predicted classifications for a given dataset, as part of a pipeline to
+    evaluate the efficacy of an ID3 decision tree. It wraps classify_row to form a
+    prediction for each observation.
 
-    * **tree** dict: the pre-trained decision tree use for classification.
-    * **observations** list[dict]: the dataset to use for classification.
-    * **pred_key** str: the string to use for the predictions key. Defaults to "pred".
+    Args:
+        tree (dict): The pre-trained decision tree use for classification.
+        observations (list[dict]): The dataset to use for classification.
+        pred_key (str): The string to use for the predictions key. Defaults to "pred".
 
-    **returns** list[dict]: returns the dataset with an additional attribute for the prediction per observation.
+    Returns:
+        list[dict]: Returns the dataset with an additional attribute for the prediction
+            per observation.
     """
     for row in observations:
         row[pred_key] = classify_row(tree, row)
@@ -163,13 +207,17 @@ def evaluate(
     observations: list[dict], pred_key: str = "pred", target_attr: str = "eat"
 ) -> float:
     """
-        `evaluate` determines the error rate of a dataset, by comparing the predicted labels to the true labels.
+    Determines the error rate of a dataset, by comparing the predicted labels to the
+     true labels.
 
-    * **observations** list[dict]: the dataset for evaluation.
-    * **pred_key** str: the key to use for the prediction attribute. Defaults to "pred".
-    * **target_attr**: str: the attribute name to use for the truth label. Default to "eat".
+    Args:
+        observations (list[dict]): The dataset for evaluation.
+        pred_key (str): The key to use for the prediction attribute. Defaults to "pred".
+        target_attr (str): The attribute name to use for the truth label. Default to
+            "eat".
 
-    **returns** type: returns the error rate of the given dataset.
+    Returns:
+        type: Returns the error rate of the given dataset.
     """
     n = len(observations)
     errors = 0
@@ -184,13 +232,20 @@ def cross_validate(
     observations: list[dict], attributes: set[str], num_folds: int
 ) -> tuple[list, list]:
     """
-        `cross_validate` runs cross validation using the observations, specified set of attributes and the number of folds. It trains, and then classifies and evaluates on both the training set and test set. The error rate is then printed out for both and added to lists that are returned for debugging purposes. **Uses**: [classify](#classify), [evaluate](#evaluate), [create_folds](#create_folds)
+    Runs cross validation using the observations, specified set of attributes and the
+    number of folds. It trains, and then classifies and evaluates on both the training
+    set and test set. The error rate is then printed out for both and added to lists
+    that are returned for debugging purposes.
 
-    * **observations** list[dict]: the input dataset for validation that will create folds and then train and evaluate for each split.
-    * **attributes** set[str]: the attribute set containing all the features of the dataset.
-    * **num_folds** int: the number of splits for cross validation in the dataset.
+    Args:
+        observations (list[dict]): The input dataset for validation that will create
+            folds and then train and evaluate for each split.
+        attributes (set[str]): The attribute set containing all the features of the
+            dataset.
+        num_folds (int): The number of splits for cross validation in the dataset.
 
-    **returns** tuple[list, list]: returns the list of training and test errors
+    Returns:
+        tuple[list, list]: Returns the list of training and test errors.
     """
     random.seed(42)
     random.shuffle(observations)
@@ -207,7 +262,9 @@ def cross_validate(
         train_error_rate = evaluate(train_classified)
         test_error_rate = evaluate(test_classified)
         print(
-            f"Fold {i + 1} error rates, train: {train_error_rate:.4f} test: {test_error_rate:.4f}"
+            f"Fold {i + 1} error rates, "
+            f"train: {train_error_rate:.4f} "
+            f"test: {test_error_rate:.4f}"
         )
         train_error.append(train_error_rate)
         test_error.append(test_error_rate)
@@ -216,10 +273,15 @@ def cross_validate(
 
 def pretty_print_tree(tree: dict, spaces: str = "") -> bool:
     """
-        `pretty_print_tree` prints out the ID3 trained decision tree in a human-friendly readable format. The function uses logic similar to classify_row to walk through the tree.
-    * **tree** dict: the trained decision tree.
+    Prints out the ID3 trained decision tree in a human-friendly readable format. The
+    function uses logic similar to classify_row to walk through the tree.
 
-    **returns** bool: Returns True if the function executed without error, mainly used for unit test purposes.
+    Args:
+        tree (dict): The trained decision tree.
+
+    Returns:
+        bool: Returns True if the function executed without error, mainly used for unit
+            test purposes.
     """
     if not isinstance(tree, dict):
         print(f"{spaces}->{tree}")
@@ -241,11 +303,17 @@ def pretty_print_tree(tree: dict, spaces: str = "") -> bool:
 
 def clean_data(data: list[list[str]], missing_str: str = "?") -> list[list[str]]:
     """
-        `clean_data` removes observations from the dataset that contain missing observations. The symbol for a missing observation defaults to "?".
-    * **data** list[list[str]]: the input data set. Assumed to be a list of lists of strings.
-    * **missing_str** str: the symbol indicating missing data. Lists containing the symbol will be removed. Defaults to "?".
+    Removes observations from the dataset that contain missing observations. The symbol
+    for a missing observation defaults to "?".
 
-    **returns** list[list[str]]: the cleaned dataset.
+    Args:
+        data (list[list[str]]): The input data set. Assumed to be a list of lists of
+            strings.
+        missing_str (str): The symbol indicating missing data. Lists containing the
+            symbol will be removed. Defaults to "?".
+
+    Returns:
+        list[list[str]]: The cleaned dataset.
     """
     clean = []
     for row in data:
@@ -261,38 +329,39 @@ def clean_data(data: list[list[str]], missing_str: str = "?") -> list[list[str]]
     return clean
 
 
-attributes = [
-    "eat",
-    "cap-shape",
-    "cap-surface",
-    "cap-color",
-    "bruises",
-    "odor",
-    "gill-attachment",
-    "gill-spacing",
-    "gill-size",
-    "gill-color",
-    "stalk-shape",
-    "stalk-root",
-    "stalk-surface-above-ring",
-    "stalk-surface-below-ring",
-    "stalk-color-above-ring",
-    "stalk-color-below-ring",
-    "veil-type",
-    "veil-color",
-    "ring-number",
-    "ring-type",
-    "spore-print-color",
-    "population",
-    "habitat",
-]
+if __name__ == "__main__":
+    attributes = [
+        "eat",
+        "cap-shape",
+        "cap-surface",
+        "cap-color",
+        "bruises",
+        "odor",
+        "gill-attachment",
+        "gill-spacing",
+        "gill-size",
+        "gill-color",
+        "stalk-shape",
+        "stalk-root",
+        "stalk-surface-above-ring",
+        "stalk-surface-below-ring",
+        "stalk-color-above-ring",
+        "stalk-color-below-ring",
+        "veil-type",
+        "veil-color",
+        "ring-number",
+        "ring-type",
+        "spore-print-color",
+        "population",
+        "habitat",
+    ]
 
-data = parse_data(
-    file_name="agaricus-lepiota.data"
-)  # this file should be in the same directory as the script
-cleaned_data = clean_data(data)
-formatted_data = [dict(zip(attributes, row)) for row in cleaned_data]
-root_attributes = attributes[1:]
-decision_tree = train(training_data=formatted_data, attributes=set(root_attributes))
-train_err, test_err = cross_validate(formatted_data, set(root_attributes), 10)
-pretty_print_tree(decision_tree)
+    data = parse_data(
+        file_name="agaricus-lepiota.data"
+    )  # this file should be in the same directory as the script
+    cleaned_data = clean_data(data)
+    formatted_data = [dict(zip(attributes, row)) for row in cleaned_data]
+    root_attributes = attributes[1:]
+    decision_tree = train(training_data=formatted_data, attributes=set(root_attributes))
+    train_err, test_err = cross_validate(formatted_data, set(root_attributes), 10)
+    pretty_print_tree(decision_tree)
