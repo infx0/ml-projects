@@ -1,3 +1,14 @@
+"""
+This script implements and demonstrates A* search on emoji-based grid worlds.
+Each terrain type has a movement cost, lava squares are treated as blocked, and
+the search expands legal neighboring squares while ranking candidates by their
+current path cost plus a terrain-aware Manhattan-style heuristic. When a route
+from the start to the goal is found, the script converts the explored
+coordinates into movement offsets, overlays directional markers on the world,
+displays the path as an HTML grid, and prints the total path cost for both the
+small and full example worlds.
+"""
+
 from IPython.display import display_html
 from worlds import small_world, full_world
 

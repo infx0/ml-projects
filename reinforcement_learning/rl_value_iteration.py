@@ -1,4 +1,33 @@
+"""
+This script solves a grid-world reinforcement learning problem with stochastic value
+iteration. It reads map files into a 2D world where each terrain type has a movement
+cost, treats `x` cells as impassable mountains, and assigns a large positive reward to
+the goal cell in the bottom-right corner.
+
+For each valid grid position, the value iteration loop evaluates the expected value of
+moving left, down, right, or up. The intended move succeeds 70% of the time, while the
+other three moves each happen 10% of the time; invalid moves leave the agent in place.
+The loop repeatedly updates state values and the best action for each state until the
+values converge or a maximum iteration limit is reached.
+
+When run as a script, it computes and prints policies for both `small.txt` and
+`large.txt`, displaying the chosen action in each reachable cell with arrow characters
+and marking the goal as `G`.
+"""
+
+
 def read_world(filename):
+    """
+    Reads a world map from a text file and returns it as a 2D list of terrain
+    characters, with each line in the file becoming one row in the world.
+
+    Args:
+        filename (str): The path to the world map file to read.
+
+    Returns:
+        list[list[str]]: The world map represented as rows and columns of terrain
+            characters.
+    """
     result = []
     with open(filename) as f:
         for line in f.readlines():

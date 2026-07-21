@@ -1,9 +1,30 @@
+"""
+This script implements and analyzes four sorting algorithms: bubble sort,
+merge sort, selection sort, and heap sort. Each function takes a list, sorts it
+in ascending order, and returns the sorted list. Bubble sort and selection sort
+use nested comparisons and have quadratic time complexity. Merge sort splits
+the list into smaller halves before merging them back together in sorted order,
+giving it n log n complexity. Heap sort first builds a max heap, then repeatedly
+moves the largest remaining value into its final position, also giving it
+n log n complexity.
+
+The inline comments explain the major steps of each algorithm and record the
+Big O, Big Omega, and Big Theta runtime bounds for comparison.
+"""
+
+
 def bubble_sort(arr):
     """
-        - The outer loop iterates 'n' times, where 'n' is the length of the array.
-    - The inner loop also iterates 'n' times in the worst case.
-    - The comparisons and swapping operations inside the inner loop are constant time ('O(1)').
+    Sort a list in ascending order using bubble sort. Bubble sort repeatedly
+    compares neighboring values and swaps them when they are out of order. The
+    outer loop iterates over the list, and the inner loop moves the largest
+    remaining value toward the end.
 
+    Args:
+        arr: The list of comparable values to sort.
+
+    Returns:
+        The same list object, sorted in ascending order.
     """
     n = len(arr)
     for i in range(n):  # O(n)
@@ -20,7 +41,15 @@ def bubble_sort(arr):
 
 def merge_sort(arr):
     """
-    Explanation: Merge sort successively splits an array in half until there is one or zero elements per array, and then successively merges the arrays back together, sorting at each step. In the comments above, I applied the master theorem to show n log n complexity for all notations.
+    Sort a list in ascending order using merge sort. Merge sort splits the list
+    into halves until each sublist has one or zero values, then merges those
+    sublists back into sorted order.
+
+    Args:
+        arr: The list of comparable values to sort.
+
+    Returns:
+        The same list object, sorted in ascending order.
     """
     if len(arr) > 1:  # O(1)
         mid = len(arr) // 2  # O(1)
@@ -63,7 +92,15 @@ def merge_sort(arr):
 
 def selection_sort(arr):
     """
-    Explanation: Selection sort goes through each element in an array and compares all successive elements. If one of the successive elements is less than the current element, it's "selected" and swapped. Therefore, best, worst, and average case complexity are all n^2 because regardless of how sorted the array is, all elements are still scanned.
+    Sort a list in ascending order using selection sort. Selection sort scans
+    the unsorted portion of the list to find the smallest remaining value, then
+    swaps it into the current position.
+
+    Args:
+        arr: The list of comparable values to sort.
+
+    Returns:
+        The same list object, sorted in ascending order.
     """
     n = len(arr)  # O(1)
     for i in range(n - 1):  # O(n)
@@ -81,6 +118,17 @@ def selection_sort(arr):
 
 
 def heapify(arr, n, i):
+    """
+    Restore the max-heap property for a subtree.
+
+    Args:
+        arr: The list containing the heap values.
+        n: The number of heap elements to consider from the front of the list.
+        i: The index of the subtree root to heapify.
+
+    Returns:
+        The same list object, with the subtree rooted at i adjusted as needed.
+    """
     largest = i  # O(1)
     left = 2 * i + 1  # O(1)
     right = 2 * i + 2  # O(1)
@@ -99,7 +147,15 @@ def heapify(arr, n, i):
 
 def heap_sort(arr):
     """
-    Explanation: Heap sort builds a max heap, and then successively moves the largest element to the end of the array. The total time complexity will be O(n) + O(n log n) = O(n log n).
+    Sort a list in ascending order using heap sort. Heap sort builds a max
+    heap, then repeatedly swaps the largest value into its final position at
+    the end of the list.
+
+    Args:
+        arr: The list of comparable values to sort.
+
+    Returns:
+        The same list object, sorted in ascending order.
     """
     n = len(arr)  # O(1)
 
