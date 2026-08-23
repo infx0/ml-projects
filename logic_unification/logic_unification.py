@@ -1,3 +1,10 @@
+"""Parse and unify symbolic logic expressions containing variables and constants.
+
+The module tokenizes parenthesized expressions into nested lists, distinguishes
+variables from constants, recursively computes a substitution mapping, applies that
+mapping to expressions, and formats the resulting bindings for callers.
+"""
+
 import tokenize
 from io import StringIO
 

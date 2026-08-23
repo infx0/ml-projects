@@ -1,3 +1,10 @@
+"""Implement and evaluate k-nearest-neighbor regression for numeric datasets.
+
+The module loads and shuffles observations, creates training and validation folds,
+computes Euclidean distances, averages the nearest targets, and compares candidate
+values of k using mean squared error and validation plots.
+"""
+
 import random
 import matplotlib.pyplot as plt
 

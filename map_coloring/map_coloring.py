@@ -1,3 +1,10 @@
+"""Formulate, solve, and visualize map coloring as a constraint problem.
+
+The solver uses backtracking with variable and value ordering, consistency checks,
+and inference to assign colors to adjacent regions. Helper functions augment a map's
+CSP representation and draw the graph and completed assignments with NetworkX.
+"""
+
 import matplotlib.pyplot as plt
 import networkx as nx
 from copy import deepcopy

@@ -1,3 +1,10 @@
+"""Compare the runtime of binary-search and trie-based autocomplete strategies.
+
+The script defines representative dictionaries and prefixes, builds trie structures,
+runs each autocomplete function repeatedly with a high-resolution timer, and prints
+average timings for both small and extended word collections.
+"""
+
 import time
 
 from trie_autocomplete import binary_search_autocomplete, trie_autocomplete, insert_trie

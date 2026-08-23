@@ -1,3 +1,10 @@
+"""Compute an optimal policy for a terrain-based grid world with value iteration.
+
+The module reads world layouts, initializes state rewards and values, excludes invalid
+or mountainous positions, iteratively applies discounted action values to convergence,
+and renders the resulting directional policy in an easy-to-read grid.
+"""
+
 def read_world(filename):
     result = []
     with open(filename) as f:

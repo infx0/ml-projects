@@ -1,3 +1,10 @@
+"""Evolve a population of character strings toward a requested target phrase.
+
+The implementation provides population generation, fitness scoring, weighted parent
+selection, single-point crossover, and random mutation. Its main genetic-algorithm
+loop reports progress while repeatedly producing fitter generations.
+"""
+
 import random
 from pprint import pprint
 

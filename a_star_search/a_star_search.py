@@ -1,3 +1,10 @@
+"""Implement A* pathfinding across rectangular emoji-based terrain maps.
+
+The module defines terrain costs, generates valid neighboring states, calculates
+heuristic and accumulated path costs, reconstructs a chosen route, and renders the
+world and resulting path as an HTML grid in a Jupyter notebook.
+"""
+
 from IPython.display import display_html
 from worlds import small_world, full_world
 

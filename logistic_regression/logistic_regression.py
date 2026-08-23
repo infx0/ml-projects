@@ -1,3 +1,10 @@
+"""Implement logistic regression for a small synthetic image-sensor problem.
+
+The module generates and optionally blurs labeled sensor readings, visualizes their
+4-by-4 pixel patterns, trains model weights with explicit sigmoid, loss, and gradient
+calculations, then applies the model and summarizes prediction quality.
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 import random

@@ -1,3 +1,10 @@
+"""Implement autocomplete with both sorted-list search and a prefix trie.
+
+The binary-search approach locates one matching word and expands around it to collect
+the full prefix range. The trie approach inserts words character by character, finds
+the prefix node, and recursively collects every marked completion below it.
+"""
+
 END = "_end_"
 
 

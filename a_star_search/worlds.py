@@ -1,3 +1,9 @@
+"""Define the terrain maps used by the A* pathfinding demonstrations.
+
+The small and full worlds are represented as two-dimensional emoji grids containing
+terrain types with different traversal costs, obstacles, and destination markers.
+"""
+
 full_world = [
     [
         "🌾",

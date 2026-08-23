@@ -1,3 +1,10 @@
+"""Implement several comparison-based sorting algorithms for educational analysis.
+
+The module contains bubble sort, merge sort, selection sort, and heap sort with its
+heapify helper. Inline notes explain the major operations and document the expected
+Big O, Big Omega, and Big Theta runtime characteristics.
+"""
+
 def bubble_sort(arr):
     """
         - The outer loop iterates 'n' times, where 'n' is the length of the array.

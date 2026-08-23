@@ -1,3 +1,10 @@
+"""Provide the extended vocabulary used by the autocomplete demonstrations.
+
+The module intentionally contains data rather than search logic: ``long_dictionary``
+is a reusable list of words supplied to both the sorted-list and trie benchmarks so
+their behavior can be compared on the same inputs.
+"""
+
 long_dictionary = [
     "anchor",
     "angle",

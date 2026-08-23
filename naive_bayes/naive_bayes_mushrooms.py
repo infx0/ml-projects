@@ -1,3 +1,10 @@
+"""Classify mushrooms with a categorical naive Bayes learning pipeline.
+
+The module parses and cleans mushroom attributes, counts class and feature outcomes,
+trains conditional probability tables, normalizes prediction probabilities, and
+evaluates classifications across cross-validation folds.
+"""
+
 from copy import deepcopy
 import random
 

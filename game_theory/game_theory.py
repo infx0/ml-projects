@@ -1,3 +1,10 @@
+"""Analyze two-player normal-form games by eliminating dominated strategies.
+
+The module detects weakly or strictly dominated rows and columns, explores possible
+elimination sequences as a state-space search, and returns the surviving strategies
+for terminal states. A Prisoner's Dilemma payoff matrix is included as an example.
+"""
+
 prisoners_dilemma = [[(-5, -5), (-1, -10)], [(-10, -1), (-2, -2)]]
 
 

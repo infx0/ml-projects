@@ -1,3 +1,10 @@
+"""Build and evaluate an ID3 decision tree for categorical observations.
+
+The module parses and cleans data, selects split attributes using information gain,
+recursively trains and prints a tree, classifies new rows, and reports performance
+through configurable cross-validation folds.
+"""
+
 from copy import deepcopy
 import random
 import math

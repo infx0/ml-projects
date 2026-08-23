@@ -1,3 +1,10 @@
+"""Implement binary and linear search for locating a target in a sequence.
+
+Each function returns the matching index or ``-1`` when no match exists. The code and
+function documentation annotate the operations and explain the best-, average-, and
+worst-case runtime behavior of the two search strategies.
+"""
+
 def binary_search(arr, target):
     """
     Explanation: Binary search locates the array index of "target" by starting at the array midpoint (assuming the array has been presorted), and iteratively selecting either the upper half of the array if the midpoint is higher than the target, or the lower half of the array if the midpoint is lower than the target. When the midpoint is equal to "target", the index of the array is returned, otherwise return a -1 if "target" can't be found. Best-case complexity is Ω(1) if "target" is the first midpoint, otherwise worst and average-case complexity is O(log n) and Θ(log n) because the search space is halved at each pass through the while loop.

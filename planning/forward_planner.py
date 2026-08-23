@@ -1,3 +1,10 @@
+"""Find action sequences with a forward state-space planner for symbolic facts.
+
+The module parses and unifies logical expressions, grounds parameterized actions,
+checks their preconditions, applies add and delete effects to successor states, and
+searches forward until it constructs a state-and-action path satisfying the goal.
+"""
+
 import tokenize
 from io import StringIO
 

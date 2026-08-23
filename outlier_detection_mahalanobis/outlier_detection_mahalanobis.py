@@ -1,3 +1,10 @@
+"""Detect and visualize multivariate outliers using Mahalanobis distance.
+
+The ``sigma_ellipse_plot`` class calculates covariance eigenvalues and eigenvectors,
+constructs confidence ellipses for selected features, identifies observations beyond
+chosen standard-deviation thresholds, and plots the results with statistical context.
+"""
+
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -8,7 +15,6 @@ import matplotlib.pyplot as plt
 from numpy.linalg import eigh
 import math
 from scipy.stats.distributions import chi2
-from scipy.stats import norm
 from scipy import stats
 import seaborn as sns
 from sklearn import datasets
