@@ -1,8 +1,19 @@
-"""Implement logistic regression for a small synthetic image-sensor problem.
+"""
+This script builds and evaluates a simple one-vs-rest logistic regression
+classifier for small simulated sensor images. Each image is represented as a
+4x4 grid of pixel readings plus a label, and helper functions can display an
+image or add Gaussian blur to make training and test examples noisier.
 
-The module generates and optionally blurs labeled sensor readings, visualizes their
-4-by-4 pixel patterns, trains model weights with explicit sigmoid, loss, and gradient
-calculations, then applies the model and summarizes prediction quality.
+The core model code prepends a bias feature, computes sigmoid probabilities,
+calculates cross-entropy loss, and computes partial derivatives for gradient
+descent. Training repeatedly updates the theta parameters until the loss stops
+changing meaningfully, with the learning rate reduced over time.
+
+The data-generation helper samples positive examples for a chosen label and
+negative examples from all other labels, shuffles them, and returns labeled
+feature vectors. After training, the model can be applied to test examples to
+produce predicted probabilities, and the evaluation helper prints an error rate
+and confusion-matrix counts.
 """
 
 import numpy as np
@@ -11,6 +22,13 @@ import random
 
 
 def view_sensor_image(data):
+    """
+    Displays a single 4x4 simulated camera image from sensor data.
+
+    Args:
+        data (list): The pixel values for the simulated camera image, followed by the
+            image label as the last element.
+    """
     figure = plt.figure(figsize=(4, 4))
     axes = figure.add_subplot(1, 1, 1)
     pixels = np.array([255 - p * 255 for p in data[:-1]], dtype="uint8")
@@ -22,6 +40,18 @@ def view_sensor_image(data):
 
 
 def blur(data):
+    """
+    Adds Gaussian noise to the pixel readings in a simulated sensor image.
+
+    Args:
+        data (list): The pixel values for the simulated camera image, followed by the
+            image label as the last element.
+
+    Returns:
+        list: The noisy pixel readings with the original label preserved as the last
+            element.
+    """
+
     def apply_noise(value):
         if value < 0.5:
             v = random.gauss(0.30, 0.07)  # (0.10, 0.05)
@@ -132,6 +162,19 @@ def derivative(j: int, thetas: list[float], data: list[tuple[list, int]]) -> flo
 def generate_data(
     data: dict[str, list[list[float]]], n: int, key_label: str
 ) -> list[tuple[list, int]]:
+    """
+    Generates a shuffled binary classification dataset for one label vs all others.
+
+    Args:
+        data (dict[str, list[list[float]]]): The original labeled sensor-image data,
+            keyed by image label.
+        n (int): The number of positive and negative examples to generate.
+        key_label (str): The label to code as the positive class.
+
+    Returns:
+        list[tuple[list, int]]: The generated feature vectors and binary truth labels,
+            where 1 represents key_label and 0 represents any other label.
+    """
     labels = list(data.keys())
     labels.remove(key_label)
 

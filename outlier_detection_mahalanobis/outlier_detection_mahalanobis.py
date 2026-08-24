@@ -1,8 +1,17 @@
-"""Detect and visualize multivariate outliers using Mahalanobis distance.
+"""
+This script visualizes Mahalanobis-style outlier boundaries for the Iris dataset.
+It loads the built-in Iris measurements, cleans the feature names, and focuses on
+two selected features: sepal length and petal width. For each Iris species, the
+sigma_ellipse_plot class filters the data to that species, computes the covariance
+matrix for the selected features, and uses the covariance eigenvalues/eigenvectors
+to determine the orientation and size of ellipses centered on the species mean.
 
-The ``sigma_ellipse_plot`` class calculates covariance eigenvalues and eigenvectors,
-constructs confidence ellipses for selected features, identifies observations beyond
-chosen standard-deviation thresholds, and plots the results with statistical context.
+The requested standard-deviation levels are converted into equivalent chi-square
+radii for two-dimensional data, which produces ellipses representing progressively
+wider probability regions around each species cluster. The main block builds these
+ellipses for setosa, versicolor, and virginica, plots the original data points and
+species means with Seaborn/Matplotlib, overlays the generated ellipses, saves the
+result as an SVG, and displays the figure.
 """
 
 import warnings
@@ -30,7 +39,20 @@ class sigma_ellipse_plot:
         feature1="sepal_length",
         feature2="petal_width",
     ):
+        """
+        Initializes the ellipse plotting helper with the dataset, target class,
+        selected features, and standard-deviation levels to visualize.
 
+        Args:
+            std_devs (list[float]): The standard-deviation levels to draw as
+                ellipses around the target class mean.
+            df (pandas.DataFrame): The full input dataset containing the target
+                column and feature columns.
+            target (str): The target class value to filter from the dataset.
+            target_header (str): The name of the column containing class labels.
+            feature1 (str): The feature to plot on the x-axis.
+            feature2 (str): The feature to plot on the y-axis.
+        """
         self.data = df
         self.target = target
         self.feature1 = feature1
@@ -49,6 +71,10 @@ class sigma_ellipse_plot:
         self.chisquare_val = None
 
     def get_data(self):
+        """
+        Filters the full dataset to the configured target class and keeps only
+        the two selected feature columns.
+        """
 
         self.data = self.data[self.data[self.target_header] == self.target].drop(
             self.target_header, axis=1
@@ -57,6 +83,10 @@ class sigma_ellipse_plot:
         return
 
     def get_eigens(self):
+        """
+        Calculates the covariance matrix for the selected features and stores
+        the largest and smallest eigenvalues and eigenvectors.
+        """
 
         covariance_matrix = self.data.cov()
         eigenvalues, eigenvectors = eigh(covariance_matrix)
@@ -69,6 +99,10 @@ class sigma_ellipse_plot:
         return
 
     def get_angle(self):
+        """
+        Calculates the rotation angle of the ellipse from the largest
+        eigenvector.
+        """
 
         self.angle = math.atan2(
             self.largest_eigenvector[1], self.largest_eigenvector[0]
@@ -77,6 +111,10 @@ class sigma_ellipse_plot:
         return
 
     def shift_angle(self):
+        """
+        Converts a negative ellipse rotation angle into the equivalent positive
+        angle between 0 and 2*pi radians.
+        """
 
         if self.angle < 0:
             self.angle = self.angle + 2 * math.pi
@@ -84,12 +122,22 @@ class sigma_ellipse_plot:
         return
 
     def get_mean(self):
+        """
+        Calculates the mean of the selected feature columns for the target class.
+        """
 
         self.mean = self.data.mean()
 
         return
 
     def get_chisquare_vals(self):
+        """
+        Converts each requested standard-deviation level into a chi-square radius
+        for a two-dimensional ellipse.
+
+        Returns:
+            list[float]: Returns the chi-square radii used to scale the ellipses.
+        """
 
         self.chisquare_val = []
         for i in range(0, len(self.std_devs)):
@@ -101,6 +149,11 @@ class sigma_ellipse_plot:
         return self.chisquare_val
 
     def get_ellipses(self):
+        """
+        Generates rotated ellipse coordinates for each configured
+        standard-deviation level using the covariance eigenvalues and eigenvector
+        angle.
+        """
 
         chisquare_val = self.get_chisquare_vals()
 
@@ -127,6 +180,16 @@ class sigma_ellipse_plot:
         return
 
     def get_labels(self, special_phrase=None):
+        """
+        Builds plot labels for each configured standard-deviation ellipse.
+
+        Args:
+            special_phrase (str): Optional text to prepend to each generated
+                label.
+
+        Returns:
+            list[str]: Returns the labels for the ellipse legend entries.
+        """
 
         labels = []
         for i in range(0, len(self.std_devs)):
@@ -140,6 +203,14 @@ class sigma_ellipse_plot:
         return labels
 
     def pipeline(self):
+        """
+        Runs the full ellipse-generation process for the configured target class.
+
+        Returns:
+            tuple[pandas.DataFrame, list[numpy.ndarray], float, float]: Returns
+                the filtered data, generated ellipse coordinates, and x/y mean
+                coordinates for the target class.
+        """
 
         self.get_data()
         self.get_eigens()

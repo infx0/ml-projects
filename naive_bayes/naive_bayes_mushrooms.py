@@ -1,8 +1,18 @@
-"""Classify mushrooms with a categorical naive Bayes learning pipeline.
+"""
+This script trains and evaluates a Naive Bayes classifier on the UCI mushroom
+dataset. It reads comma-separated mushroom observations, removes rows with
+missing values, maps each row into named attributes, and uses the "eat" column as
+the target label for edible versus poisonous mushrooms.
 
-The module parses and cleans mushroom attributes, counts class and feature outcomes,
-trains conditional probability tables, normalizes prediction probabilities, and
-evaluates classifications across cross-validation folds.
+Training counts how often each class appears and how often each feature value
+appears within each class, then converts those counts into prior and conditional
+probabilities. Classification multiplies the relevant probabilities for a new
+observation, normalizes the class scores, and chooses the most likely label.
+
+When run directly, the script performs 10-fold cross validation twice: once with
++1 smoothing enabled and once without smoothing. For each fold it trains on nine
+folds, evaluates both the training set and held-out test fold, and prints the
+resulting error rates.
 """
 
 from copy import deepcopy
@@ -36,6 +46,17 @@ ATTRIBUTES = [
 
 
 def parse_data(file_name: str) -> list[list]:
+    """
+    Reads a comma-separated data file into a list of observations, where each
+    observation is represented as a list of strings. The resulting dataset is shuffled
+    before being returned.
+
+    Args:
+        file_name (str): The name of the data file to parse.
+
+    Returns:
+        list[list]: The parsed and shuffled dataset.
+    """
     data = []
     file = open(file_name, "r")
     for line in file:
@@ -46,6 +67,18 @@ def parse_data(file_name: str) -> list[list]:
 
 
 def create_folds(xs: list, n: int) -> list[list[list]]:
+    """
+    Splits a list of observations into a specified number of folds for cross
+    validation. The folds are kept as even as possible, with any remainder distributed
+    across the first folds.
+
+    Args:
+        xs (list): The list of observations to split into folds.
+        n (int): The number of folds to create.
+
+    Returns:
+        list[list[list]]: A list containing the generated folds.
+    """
     k, m = divmod(len(xs), n)
     # be careful of generators...
     return list(xs[i * k + min(i, m) : (i + 1) * k + min(i + 1, m)] for i in range(n))

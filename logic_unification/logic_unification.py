@@ -1,8 +1,21 @@
-"""Parse and unify symbolic logic expressions containing variables and constants.
+"""
+This script parses simple parenthesized logic expressions and attempts to unify two
+expressions by finding variable substitutions that make them syntactically equal.
+Variables are strings beginning with "?", constants are ordinary strings, and nested
+parenthesized expressions are represented as Python lists.
 
-The module tokenizes parenthesized expressions into nested lists, distinguishes
-variables from constants, recursively computes a substitution mapping, applies that
-mapping to expressions, and formats the resulting bindings for callers.
+The main workflow starts in unify(), which parses each input string into list form,
+normalizes single atoms into one-item lists, and then calls unification(). The
+recursive unification algorithm compares constants directly, binds variables when
+possible, rejects circular bindings, applies discovered substitutions to the remaining
+subexpressions, and merges compatible substitution dictionaries. Helper functions
+format nested substitution results into readable strings and apply substitutions
+in-place across expression lists.
+
+When run as a script, the file executes a set of self-checking examples that print the
+actual and expected unification results, then assert that the implementation behaves as
+expected for matching constants, variable bindings, nested expressions, failures, and
+empty expressions.
 """
 
 import tokenize
@@ -10,6 +23,16 @@ from io import StringIO
 
 
 def atom(next, token):
+    """
+    Parses a single token into an atom, variable, or nested logic expression.
+
+    Args:
+        next (callable): The token generator's next-token function.
+        token (tuple): The current token being evaluated.
+
+    Returns:
+        str or list: Returns a parsed string atom, variable string, or nested list.
+    """
     if token[1] == "(":
         out = []
         token = next()
@@ -27,16 +50,43 @@ def atom(next, token):
 
 
 def parse(exp):
+    """
+    Converts a string expression into its parsed atom or nested list representation.
+
+    Args:
+        exp (str): The logic expression string to parse.
+
+    Returns:
+        str or list: Returns the parsed expression.
+    """
     src = StringIO(exp).readline
     tokens = tokenize.generate_tokens(src)
     return atom(tokens.__next__, tokens.__next__())
 
 
 def is_variable(exp):
+    """
+    Checks whether an expression is a variable.
+
+    Args:
+        exp (str or list): The expression to evaluate.
+
+    Returns:
+        bool: Returns True when the expression is a string beginning with "?".
+    """
     return isinstance(exp, str) and exp[0] == "?"
 
 
 def is_constant(exp):
+    """
+    Checks whether an expression is a constant.
+
+    Args:
+        exp (str or list): The expression to evaluate.
+
+    Returns:
+        bool: Returns True when the expression is a string and not a variable.
+    """
     return isinstance(exp, str) and not is_variable(exp)
 
 
@@ -143,12 +193,31 @@ def unification(list_expression1, list_expression2) -> dict:
 
 
 def list_check(parsed_expression):
+    """
+    Ensures a parsed expression is represented as a list.
+
+    Args:
+        parsed_expression (str or list): The parsed expression to evaluate.
+
+    Returns:
+        list: Returns the original list or wraps a single atom in a list.
+    """
     if isinstance(parsed_expression, list):
         return parsed_expression
     return [parsed_expression]
 
 
 def unify(s_expression1, s_expression2):
+    """
+    Parses two string expressions and runs the unification algorithm on them.
+
+    Args:
+        s_expression1 (str): The first logic expression string.
+        s_expression2 (str): The second logic expression string.
+
+    Returns:
+        dict: Returns the substitution list, or None when unification fails.
+    """
     list_expression1 = list_check(parse(s_expression1))
     list_expression2 = list_check(parse(s_expression2))
     return unification(list_expression1, list_expression2)

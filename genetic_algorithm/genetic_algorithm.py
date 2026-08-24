@@ -1,8 +1,17 @@
-"""Evolve a population of character strings toward a requested target phrase.
+"""
+This script demonstrates a simple genetic algorithm that evolves random strings toward
+target phrases. Each individual is represented as a genotype: a list of characters
+drawn from a configurable alphabet. The algorithm repeatedly evaluates the population
+against a target phenotype, selects stronger candidates through tournament-style
+parent selection, and creates the next generation with crossover and occasional
+mutation.
 
-The implementation provides population generation, fitness scoring, weighted parent
-selection, single-point crossover, and random mutation. Its main genetic-algorithm
-loop reports progress while repeatedly producing fitter generations.
+Fitness is based on ASCII distance from the target string: the closer an individual's
+characters are to the target characters, the higher its score. The evaluation step can
+also compare against a reversed target or a Caesar-style rotated target, which lets the
+main block run three examples: a direct phrase match, a flipped phrase, and a ROT13-like
+decoding task. Progress is printed every ten generations, and each run returns the best
+genotype, phenotype, and fitness score found within the generation limit.
 """
 
 import random

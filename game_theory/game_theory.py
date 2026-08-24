@@ -1,8 +1,19 @@
-"""Analyze two-player normal-form games by eliminating dominated strategies.
+"""
+This script models two-player normal-form games as payoff matrices, where each
+cell contains the payoffs for the row player and the column player. It searches
+for pure-strategy outcomes that remain after successive elimination of dominated
+strategies.
 
-The module detects weakly or strictly dominated rows and columns, explores possible
-elimination sequences as a state-space search, and returns the surviving strategies
-for terminal states. A Prisoner's Dilemma payoff matrix is included as an example.
+The solver starts with every row and column strategy available, then performs a
+depth-first search over reduced versions of the game. At each state, it finds row
+strategies dominated for player one and column strategies dominated for player
+two, using either strict dominance or weak dominance depending on the `weak`
+flag. Each dominated strategy produces a child state with that row or column
+removed. When a state has exactly one row and one column left, that remaining
+strategy pair is recorded as a solution.
+
+Running the file directly exercises the solver against several sample games and
+asserts the expected results.
 """
 
 prisoners_dilemma = [[(-5, -5), (-1, -10)], [(-10, -1), (-2, -2)]]

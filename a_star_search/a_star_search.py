@@ -1,8 +1,12 @@
-"""Implement A* pathfinding across rectangular emoji-based terrain maps.
-
-The module defines terrain costs, generates valid neighboring states, calculates
-heuristic and accumulated path costs, reconstructs a chosen route, and renders the
-world and resulting path as an HTML grid in a Jupyter notebook.
+"""
+This script implements and demonstrates A* search on emoji-based grid worlds.
+Each terrain type has a movement cost, lava squares are treated as blocked, and
+the search expands legal neighboring squares while ranking candidates by their
+current path cost plus a terrain-aware Manhattan-style heuristic. When a route
+from the start to the goal is found, the script converts the explored
+coordinates into movement offsets, overlays directional markers on the world,
+displays the path as an HTML grid, and prints the total path cost for both the
+small and full example worlds.
 """
 
 from IPython.display import display_html

@@ -1,8 +1,22 @@
-"""Formulate, solve, and visualize map coloring as a constraint problem.
+"""
+This script solves map-coloring problems by treating each map as a constraint
+satisfaction problem (CSP). A map is represented as a graph: nodes are regions,
+edges connect adjacent regions, and each node's domain is the list of colors it
+may use. The solver assigns colors so that no two adjacent regions share the
+same color.
 
-The solver uses backtracking with variable and value ordering, consistency checks,
-and inference to assign colors to adjacent regions. Helper functions augment a map's
-CSP representation and draw the graph and completed assignments with NetworkX.
+The main solving path starts with color_map(), which augments the graph with
+color domains and then runs a recursive backtracking search. During that search,
+the script chooses the next unassigned region with the degree heuristic, tries
+colors in least-constraining-value order, checks assignments against already
+colored neighbors, and uses forward checking to prune impossible colors from
+neighboring domains before recursing. If a branch leaves any unassigned region
+with no valid colors, the search backtracks and tries another assignment.
+
+The draw_map() helper visualizes a graph with NetworkX and Matplotlib. When run
+directly, the script defines sample Connecticut and Europe maps, colors them
+with four and then three colors, verifies that adjacent regions do not share a
+color, and draws the resulting colored maps.
 """
 
 import matplotlib.pyplot as plt
@@ -10,7 +24,24 @@ import networkx as nx
 from copy import deepcopy
 
 
-def draw_map(name, planar_map, size, color_assignments=None):
+def draw_map(name, planar_map, size, color_assignments=None) -> None:
+    """
+    Draws a map represented as a graph, using the provided coordinates for node
+    placement and the provided labels for each node. If color assignments are passed
+    in, it colors the nodes with those assignments; otherwise, it colors all nodes red.
+
+    Args:
+        name (str): The title to display above the drawn map.
+        planar_map (dict): The graph dictionary to draw. It has the form
+            {"coordinates": list[tuple], "edges": list[tuple], "nodes": list[str]}.
+        size (tuple): The figure size to use when drawing the map.
+        color_assignments (list[tuple[str, str]] | None): The optional list of node
+            color assignments to use when coloring the graph nodes.
+
+    Returns:
+        None
+    """
+
     def as_dictionary(a_list):
         dct = {}
         for i, e in enumerate(a_list):

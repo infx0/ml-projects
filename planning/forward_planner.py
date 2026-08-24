@@ -1,23 +1,69 @@
-"""Find action sequences with a forward state-space planner for symbolic facts.
+"""
+This script implements a simple forward planner for symbolic planning problems.
+Facts and action schemas are written as small parenthesized expressions, such as
+``(at Me Home)`` or ``(drive ?agent ?from ?to)``, where names beginning with ``?``
+are variables. The parser converts those strings into nested Python lists, and the
+unification helpers bind variables to concrete values when a fact matches an
+action precondition.
 
-The module parses and unifies logical expressions, grounds parameterized actions,
-checks their preconditions, applies add and delete effects to successor states, and
-searches forward until it constructs a state-and-action path satisfying the goal.
+Planning happens in two layers. First, each action's preconditions are matched
+against the current state's facts to find every valid set of variable bindings.
+For every binding, the action's delete list removes facts from a copied state and
+the add list inserts newly true facts, producing successor states and concrete
+action strings. Then ``forward_planner`` searches outward from the start state,
+tracking explored states to avoid loops, until the goal facts are all present in
+the current state.
+
+The return value is the ordered list of actions that reaches the goal. When
+``debug`` is enabled, the planner instead returns the path with states and actions
+interleaved so the state changes can be inspected step by step. The example in
+the ``__main__`` block sets up a small shopping/travel problem and prints both
+the compact plan and the debug trace.
 """
 
 import tokenize
 from io import StringIO
 
 
-def is_variable(exp):
+def is_variable(exp) -> bool:
+    """
+    Checks whether an expression is a logic variable.
+
+    Args:
+        exp: The expression to inspect.
+
+    Returns:
+        bool: Returns True if the expression is a string that starts with "?",
+            otherwise returns False.
+    """
     return isinstance(exp, str) and exp[0] == "?"
 
 
-def is_constant(exp):
+def is_constant(exp) -> bool:
+    """
+    Checks whether an expression is a logic constant.
+
+    Args:
+        exp: The expression to inspect.
+
+    Returns:
+        bool: Returns True if the expression is a string and not a variable,
+            otherwise returns False.
+    """
     return isinstance(exp, str) and not is_variable(exp)
 
 
-def flatten(x):
+def flatten(x) -> list:
+    """
+    Is a helper function that recursively flattens nested expressions into one list.
+
+    Args:
+        x: The nested expression to flatten.
+
+    Returns:
+        list: Returns a single list containing every non-list element from the
+            original expression.
+    """
     result = []
     for el in x:
         if hasattr(el, "__iter__") and not isinstance(el, str):
@@ -27,17 +73,52 @@ def flatten(x):
     return result
 
 
-def occurs_check(exp1, exp2):
+def occurs_check(exp1, exp2) -> bool:
+    """
+    Checks whether a variable appears inside an expression before binding it.
+
+    Args:
+        exp1: The variable or expression to look for.
+        exp2: The expression to search.
+
+    Returns:
+        bool: Returns True if exp1 occurs anywhere inside exp2, otherwise returns
+            False.
+    """
     return exp1 in flatten(exp2)
 
 
-def inconsistent_assignment(exp1, exp2, frame):
+def inconsistent_assignment(exp1, exp2, frame) -> bool:
+    """
+    Checks whether a proposed variable binding conflicts with existing bindings.
+
+    Args:
+        exp1: The variable being assigned.
+        exp2: The value proposed for the variable.
+        frame (dict): The current mapping of variable bindings.
+
+    Returns:
+        bool: Returns True if exp1 is already bound to a different value, otherwise
+            returns False.
+    """
     if not exp1 in frame:
         return False
     return not frame[exp1] == exp2
 
 
 def unification(exp1, exp2, frame=None):
+    """
+    Recursively attempts to unify two parsed logic expressions.
+
+    Args:
+        exp1: The first parsed expression to unify.
+        exp2: The second parsed expression to unify.
+        frame (dict): The current mapping of variable bindings.
+
+    Returns:
+        dict | bool: Returns the completed variable bindings if unification succeeds,
+            otherwise returns False.
+    """
     if frame == None:
         frame = {}
     if is_constant(exp1) and is_constant(exp2) or len(exp1) == 0 and len(exp2) == 0:
@@ -66,6 +147,17 @@ def unification(exp1, exp2, frame=None):
 
 
 def atom(next, token):
+    """
+    Recursively parses tokens into atoms and nested list expressions.
+
+    Args:
+        next: The tokenizer callback used to retrieve the next token.
+        token: The current token being parsed.
+
+    Returns:
+        list | str: Returns a parsed nested list for parenthesized expressions, a
+            variable string for tokens beginning with "?", or a constant string.
+    """
     if token[1] == "(":
         out = []
         token = next()
@@ -83,12 +175,32 @@ def atom(next, token):
 
 
 def parse(exp):
+    """
+    Converts a parenthesized fact or action string into a parsed expression.
+
+    Args:
+        exp (str): The fact or action expression to parse.
+
+    Returns:
+        list | str: Returns the parsed expression as nested lists and strings.
+    """
     src = StringIO(exp).readline
     tokens = tokenize.generate_tokens(src)
     return atom(tokens.__next__, tokens.__next__())
 
 
 def unify(exp1, exp2):
+    """
+    Parses and unifies two fact or action expression strings.
+
+    Args:
+        exp1 (str): The first expression string to unify.
+        exp2 (str): The second expression string to unify.
+
+    Returns:
+        dict | bool: Returns the variable bindings if unification succeeds, otherwise
+            returns False.
+    """
     return unification(parse(exp1), parse(exp2))
 
 

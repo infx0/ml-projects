@@ -1,8 +1,16 @@
-"""Implement and evaluate k-nearest-neighbor regression for numeric datasets.
+"""
+This script implements and evaluates a simple k-nearest neighbors regression
+model for predicting concrete compressive strength from a CSV dataset. It reads
+the data, shuffles it, splits it into cross-validation folds, and predicts each
+target value by averaging the targets of the k nearest training observations
+using squared Euclidean distance.
 
-The module loads and shuffles observations, creates training and validation folds,
-computes Euclidean distances, averages the nearest targets, and compares candidate
-values of k using mean squared error and validation plots.
+When run directly, the script first compares kNN against a null model that
+always predicts the training-set mean. It then runs 10-fold cross validation for
+several k values to show how training and test mean squared error change as k
+increases. Finally, it repeats the validation on progressively larger subsets
+of the dataset to show how error changes with dataset size, plotting both sets
+of results with matplotlib.
 """
 
 import random
@@ -10,6 +18,17 @@ import matplotlib.pyplot as plt
 
 
 def parse_data(file_name: str) -> list[list]:
+    """
+    Parses the input CSV file into a shuffled list of observations. Each line is
+    split on commas, converted to floats, and added as one observation in the
+    dataset.
+
+    Args:
+        file_name (str): The name of the CSV file to parse.
+
+    Returns:
+        list[list]: Returns the shuffled observations from the input file.
+    """
     data = []
     file = open(file_name, "r")
     for line in file:
@@ -20,6 +39,18 @@ def parse_data(file_name: str) -> list[list]:
 
 
 def create_folds(xs: list, n: int) -> list[list[list]]:
+    """
+    Splits a list of observations into n folds for cross validation. If the data
+    cannot be divided evenly, the remaining observations are distributed across
+    the earliest folds.
+
+    Args:
+        xs (list): The observations to split into folds.
+        n (int): The number of folds to create.
+
+    Returns:
+        list[list[list]]: Returns the input observations split into n folds.
+    """
     k, m = divmod(len(xs), n)
     # be careful of generators...
     return list(xs[i * k + min(i, m) : (i + 1) * k + min(i + 1, m)] for i in range(n))
@@ -28,6 +59,18 @@ def create_folds(xs: list, n: int) -> list[list[list]]:
 def create_train_test(
     folds: list[list[list]], index: int
 ) -> tuple[list[list], list[list]]:
+    """
+    Creates a training and test split from existing cross-validation folds. The
+    fold at the input index is used as the test set, and all remaining folds are
+    combined into the training set.
+
+    Args:
+        folds (list[list[list]]): The cross-validation folds to split.
+        index (int): The index of the fold to use as the test set.
+
+    Returns:
+        tuple[list[list], list[list]]: Returns the training set and test set.
+    """
     training = []
     test = []
     for i, fold in enumerate(folds):

@@ -1,8 +1,15 @@
-"""Build and evaluate an ID3 decision tree for categorical observations.
+"""
+This script trains and evaluates an ID3 decision tree classifier on the
+agaricus-lepiota mushroom dataset. It reads the comma-separated data file, removes
+rows with missing values, maps each row to named mushroom attributes, and builds a
+nested-dictionary decision tree that predicts whether a mushroom is edible or
+poisonous. The tree is trained recursively by choosing the remaining attribute with
+the lowest weighted entropy at each split, with majority-label fallbacks for empty
+or ambiguous branches.
 
-The module parses and cleans data, selects split attributes using information gain,
-recursively trains and prints a tree, classifies new rows, and reports performance
-through configurable cross-validation folds.
+When run directly, the script trains a decision tree on the cleaned dataset, performs
+10-fold cross validation to print training and test error rates, and then prints the
+learned tree in a readable indented form.
 """
 
 from copy import deepcopy
@@ -11,6 +18,16 @@ import math
 
 
 def parse_data(file_name: str) -> list[list]:
+    """
+    Reads comma-separated mushroom data from a file into a list of rows, then randomly
+    shuffles the rows before returning them.
+
+    Args:
+        file_name (str): The name of the data file to read.
+
+    Returns:
+        list[list]: Returns the parsed and shuffled dataset as a list of row values.
+    """
     data = []
     file = open(file_name, "r")
     for line in file:
@@ -21,6 +38,18 @@ def parse_data(file_name: str) -> list[list]:
 
 
 def create_folds(xs: list, n: int) -> list[list[dict]]:
+    """
+    Splits a dataset into a specified number of folds for cross validation. The folds
+    are kept as evenly sized as possible, with any extra rows distributed across the
+    earliest folds.
+
+    Args:
+        xs (list): The dataset to split into folds.
+        n (int): The number of folds to create.
+
+    Returns:
+        list[list[dict]]: Returns a list containing the folded subsets of the dataset.
+    """
     k, m = divmod(len(xs), n)
     # be careful of generators...
     return list(xs[i * k + min(i, m) : (i + 1) * k + min(i + 1, m)] for i in range(n))
